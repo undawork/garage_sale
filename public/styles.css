@@ -50,7 +50,7 @@ select{min-width:160px}
 }
 .chip.active{background:var(--accent);color:white;border-color:var(--accent)}
 .result-row{display:flex;justify-content:space-between;align-items:center;padding:18px 0 8px;color:var(--muted);font-size:.92rem}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:10px 0 70px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:10px 0 70px;align-items:start}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
 .image-wrap{aspect-ratio:4/5;background:#ebe7de;display:grid;place-items:center;position:relative;overflow:hidden}
 .image-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#ebe7de}
@@ -58,13 +58,13 @@ select{min-width:160px}
 .image-placeholder span{font-size:.74rem;letter-spacing:.14em;font-weight:800}
 .image-placeholder strong{font-size:.95rem;color:#8b877f}
 .badge{position:absolute;z-index:2;top:12px;left:12px;background:rgba(23,23,23,.9);color:white;border-radius:999px;padding:7px 10px;font-size:.75rem}
-.card-body{padding:18px;display:flex;flex-direction:column;gap:10px;height:100%}
+.card-body{padding:18px;display:flex;flex-direction:column;gap:10px}
 .meta{color:var(--muted);font-size:.84rem;text-transform:uppercase;letter-spacing:.06em}
 .card h2{font-size:1.3rem;letter-spacing:-.03em;margin:0}
 .description{margin:-3px 0 0;color:var(--muted);font-size:.9rem;line-height:1.45}
 .attrs{display:flex;gap:8px;flex-wrap:wrap}
 .attr{border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:.78rem;color:var(--muted)}
-.bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;padding-top:4px}
+.bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:6px}
 .price{font-size:1.45rem;font-weight:800;letter-spacing:-.03em}
 .cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--accent);color:white;border-radius:999px;padding:11px 15px;font-weight:700;font-size:.9rem}
 .cta.disabled{opacity:.45;pointer-events:none}
