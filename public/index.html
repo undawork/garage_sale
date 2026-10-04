@@ -34,7 +34,13 @@
       </select>
     </section>
 
-    <section class="filterbar" aria-label="Filtros">
+    <div class="filter-toggle-row">
+      <button id="filterToggle" class="filter-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">
+        Mostrar filtros
+      </button>
+    </div>
+
+    <section id="filterPanel" class="filterbar" aria-label="Filtros" hidden>
       <div id="categories" class="chips" aria-label="Categorías"></div>
       <div class="filter-selects">
         <select id="typeFilter" aria-label="Filtrar por tipo"></select>
