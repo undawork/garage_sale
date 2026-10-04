@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#f4f1ea" />
+  <title>Venta de Garage</title>
+  <meta name="description" content="Prendas, tecnología, libros y otras cosas que buscan nueva casa." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">VENTA DE GARAGE</p>
+      <h1>Cosas que buscan<br />una nueva casa.</h1>
+      <p class="intro">Todo está publicado con precio y estado real. Si algo te interesa, escríbeme por WhatsApp y coordinamos.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="toolbar" aria-label="Filtros">
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Buscar..." autocomplete="off" aria-label="Buscar productos" />
+      </div>
+      <div id="categories" class="chips" aria-label="Categorías"></div>
+      <select id="sort" aria-label="Ordenar productos">
+        <option value="order">Destacados</option>
+        <option value="price-asc">Menor precio</option>
+        <option value="price-desc">Mayor precio</option>
+        <option value="name">Nombre</option>
+      </select>
+    </section>
+
+    <section class="result-row">
+      <p id="resultCount">Cargando productos…</p>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+    <section id="empty" class="empty" hidden>
+      <p>No hay productos para mostrar todavía.</p>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>Venta de Garage · Córdoba</p>
+  </footer>
+
+  <script src="/config.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
