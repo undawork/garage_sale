@@ -1,52 +1,44 @@
 # Venta de Garage
 
-Catálogo simple y responsive para publicar productos de una venta de garage, con filtros y contacto directo por WhatsApp.
+Catálogo responsive para publicar productos de una venta de garage, con filtros y contacto directo por WhatsApp.
 
 ## Arquitectura
 
-- **Google Drive:** fuente de trabajo para fotos y planilla de productos.
-- **GitHub:** versión publicable del catálogo.
-- **Cloudflare Workers Static Assets:** hosting y despliegue automático.
-- **WhatsApp:** CTA personalizado por producto.
+- **Google Drive / Google Sheet:** fuente de trabajo.
+- **GitHub:** versión publicable.
+- **Cloudflare Workers Static Assets:** hosting.
+- **WhatsApp:** CTA por producto.
 
-## Catálogo
+## Estado actual
 
-El sitio lee `public/data/products.json`. Cada producto puede tener:
+La estructura admite publicar productos incompletos:
 
-```json
-{
-  "id": "VG-001",
-  "name": "Camisa Zara celeste",
-  "category": "Ropa",
-  "type": "Camisa",
-  "brand": "Zara",
-  "size": "L",
-  "color": "Celeste",
-  "condition": "Excelente",
-  "price": 25000,
-  "currency": "ARS",
-  "availability": "Disponible",
-  "publish": true,
-  "image": "/products/VG-001.png",
-  "description": "Poco uso",
-  "order": 1
-}
-```
+- sin foto -> muestra placeholder;
+- sin precio -> muestra **Consultar**;
+- con foto -> busca automáticamente `/products/ID.png`.
+
+Ejemplo: `VG-001` utiliza `public/products/VG-001.png`.
+
+Los datos del catálogo viven en `public/data/products.json`.
 
 ## WhatsApp
 
-Completar el número internacional sin + ni espacios en `public/config.js`:
+El número está configurado en `public/config.js`.
 
-```js
-whatsappNumber: "549351XXXXXXXX"
-```
-
-## Desarrollo local
+## Desarrollo
 
 ```bash
 npm install
 npm run dev
 ```
+
+## Validación
+
+```bash
+npm run validate
+```
+
+El validador detecta IDs duplicados o datos obligatorios faltantes. Las fotos pendientes se reportan como avisos y no bloquean el deploy.
 
 ## Deploy
 
@@ -54,4 +46,4 @@ npm run dev
 npm run deploy
 ```
 
-Cloudflare también puede desplegar automáticamente desde la rama `main`.
+Ver `docs/CATALOG_WORKFLOW.md` para el flujo de carga.
