@@ -22,7 +22,7 @@ h1{font-size:clamp(3rem,8vw,6.8rem);line-height:.91;letter-spacing:-.065em;margi
 .intro{max-width:630px;font-size:1.08rem;line-height:1.6;color:var(--muted);margin:28px 0 0}
 .toolbar{
   display:grid;
-  grid-template-columns:minmax(220px,1fr) auto auto;
+  grid-template-columns:minmax(220px,1fr) minmax(170px,220px);
   gap:12px;
   align-items:center;
   padding:20px 0;
@@ -98,3 +98,46 @@ select{min-width:160px}
   line-height:1.45;
 }
 .trust-note strong{color:var(--text);font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+
+.filterbar{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:14px 0 4px;
+}
+.filter-selects{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr)) auto;
+  gap:8px;
+}
+.filter-selects select{
+  min-width:0;
+  padding:10px 12px;
+  font-size:.9rem;
+}
+.clear-filter{
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--text);
+  border-radius:999px;
+  padding:10px 14px;
+  font:inherit;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.clear-filter:disabled{
+  opacity:.35;
+  cursor:default;
+}
+.attr.condition{
+  color:var(--text);
+  border-color:#bdb7ab;
+  background:rgba(23,23,23,.04);
+}
+@media(max-width:880px){
+  .filter-selects{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .filter-selects{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .clear-filter{grid-column:1 / -1}
+}
