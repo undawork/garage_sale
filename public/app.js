@@ -18,7 +18,19 @@ const money = (value, currency = config.currency || "ARS") =>
     style: "currency",
     currency,
     maximumFractionDigits: 0,
-  }).format(Number(value || 0));
+  }).format(Number(value));
+
+const priceLabel = (product) => {
+  if (product.price === null || product.price === undefined || product.price === "") {
+    return "Consultar";
+  }
+  const value = Number(product.price);
+  if (Number.isNaN(value)) return "Consultar";
+  return money(value, product.currency || config.currency);
+};
+
+const productImage = (product) =>
+  product.image || (product.id ? `/products/${product.id}.png` : "");
 
 function whatsappUrl(product) {
   if (!config.whatsappNumber) return "";
@@ -43,8 +55,8 @@ function visibleProducts() {
     ].filter(Boolean).join(" ")).includes(q));
   }
   items.sort((a,b) => {
-    if (state.sort === "price-asc") return Number(a.price||0) - Number(b.price||0);
-    if (state.sort === "price-desc") return Number(b.price||0) - Number(a.price||0);
+    if (state.sort === "price-asc") return Number(a.price ?? Infinity) - Number(b.price ?? Infinity);
+    if (state.sort === "price-desc") return Number(b.price ?? -Infinity) - Number(a.price ?? -Infinity);
     if (state.sort === "name") return String(a.name).localeCompare(String(b.name),"es");
     return Number(a.order||9999) - Number(b.order||9999);
   });
@@ -59,22 +71,34 @@ function card(product) {
     product.color,
     product.condition
   ].filter(Boolean);
+  const image = productImage(product);
 
   return `<article class="card">
     <div class="image-wrap">
-      ${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy">` : ""}
+      <div class="image-placeholder" aria-hidden="true">
+        <span>${product.id || ""}</span>
+        <strong>Foto próximamente</strong>
+      </div>
+      ${image ? `<img src="${image}" alt="${product.name}" loading="lazy">` : ""}
       ${product.availability === "Reservado" ? '<span class="badge">Reservado</span>' : ""}
     </div>
     <div class="card-body">
       <div class="meta">${[product.category, product.type].filter(Boolean).join(" · ")}</div>
       <h2>${product.name}</h2>
+      ${product.description ? `<p class="description">${product.description}</p>` : ""}
       <div class="attrs">${attrs.map(a => `<span class="attr">${a}</span>`).join("")}</div>
       <div class="bottom">
-        <div class="price">${money(product.price, product.currency || config.currency)}</div>
+        <div class="price">${priceLabel(product)}</div>
         <a class="cta ${href ? "" : "disabled"}" href="${href || "#"}" target="_blank" rel="noopener">Me interesa</a>
       </div>
     </div>
   </article>`;
+}
+
+function bindImageFallbacks() {
+  els.grid.querySelectorAll(".image-wrap img").forEach(img => {
+    img.addEventListener("error", () => img.remove(), { once: true });
+  });
 }
 
 function render() {
@@ -83,6 +107,7 @@ function render() {
   els.grid.innerHTML = items.map(card).join("");
   els.empty.hidden = items.length !== 0;
   renderCategories();
+  bindImageFallbacks();
 }
 
 els.categories.addEventListener("click", e => {
