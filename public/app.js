@@ -23,6 +23,8 @@ const els = {
   condition: document.querySelector("#conditionFilter"),
   color: document.querySelector("#colorFilter"),
   clear: document.querySelector("#clearFilters"),
+  filterToggle: document.querySelector("#filterToggle"),
+  filterPanel: document.querySelector("#filterPanel"),
   count: document.querySelector("#resultCount"),
 };
 
@@ -183,6 +185,13 @@ els.sort.addEventListener("change", e => { state.sort = e.target.value; render()
     state[key] = e.target.value;
     render();
   });
+});
+
+els.filterToggle.addEventListener("click", () => {
+  const willOpen = els.filterPanel.hidden;
+  els.filterPanel.hidden = !willOpen;
+  els.filterToggle.setAttribute("aria-expanded", String(willOpen));
+  els.filterToggle.textContent = willOpen ? "Ocultar filtros" : "Mostrar filtros";
 });
 
 els.clear.addEventListener("click", () => {
