@@ -1,5 +1,5 @@
 window.GARAGE_CONFIG = {
-  whatsappNumber: "",
+  whatsappNumber: "541123861302",
   currency: "ARS",
   locale: "es-AR"
 };
