@@ -81,3 +81,20 @@ select{min-width:160px}
   .grid{grid-template-columns:1fr;gap:14px}
   .toolbar{position:static}
 }
+
+.trust-note{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 14px;
+  align-items:center;
+  max-width:760px;
+  margin-top:18px;
+  padding:13px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(255,255,255,.32);
+  color:var(--muted);
+  font-size:.9rem;
+  line-height:1.45;
+}
+.trust-note strong{color:var(--text);font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
