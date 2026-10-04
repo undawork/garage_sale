@@ -30,7 +30,7 @@ const priceLabel = (product) => {
 };
 
 const productImage = (product) =>
-  product.image || (product.id ? `/products/${product.id}.png` : "");
+  product.image || (product.id ? `/products/${product.id}.webp` : "");
 
 function whatsappUrl(product) {
   if (!config.whatsappNumber) return "";
@@ -79,7 +79,7 @@ function card(product) {
         <span>${product.id || ""}</span>
         <strong>Foto próximamente</strong>
       </div>
-      ${image ? `<img src="${image}" alt="${product.name}" loading="lazy">` : ""}
+      ${image ? `<img src="${image}" alt="${product.name}" loading="lazy" decoding="async">` : ""}
       ${product.availability === "Reservado" ? '<span class="badge">Reservado</span>' : ""}
     </div>
     <div class="card-body">
