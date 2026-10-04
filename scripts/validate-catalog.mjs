@@ -26,11 +26,11 @@ if (!Array.isArray(products)) {
       const explicit = product.image
         ? path.join(root, "public", String(product.image).replace(/^\//, ""))
         : null;
-      const conventional = path.join(productsDir, `${product.id}.png`);
+      const conventional = path.join(productsDir, `${product.id}.webp`);
       const imagePath = explicit || conventional;
 
       if (!fs.existsSync(imagePath)) {
-        warnings.push(`${product.id}: falta foto (esperada: public/products/${product.id}.png)`);
+        warnings.push(`${product.id}: falta foto optimizada (esperada: public/products/${product.id}.webp)`);
       }
     }
   }
