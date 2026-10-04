@@ -9,26 +9,32 @@ Catálogo responsive para publicar productos de una venta de garage, con filtros
 - **Cloudflare Workers Static Assets:** hosting.
 - **WhatsApp:** CTA por producto.
 
-## Estado actual
+## Imágenes
 
-La estructura admite publicar productos incompletos:
+Las imágenes maestras se guardan en `source-images/` usando el ID del producto:
 
-- sin foto -> muestra placeholder;
-- sin precio -> muestra **Consultar**;
-- con foto -> busca automáticamente `/products/ID.png`.
+- `VG-001.png`
+- `VG-002.png`
+- etc.
 
-Ejemplo: `VG-001` utiliza `public/products/VG-001.png`.
+GitHub Actions las convierte automáticamente a WebP optimizado en:
+
+- `public/products/VG-001.webp`
+- `public/products/VG-002.webp`
+
+La web usa las imágenes WebP. Si una imagen todavía no existe, muestra un placeholder.
+
+## Datos
 
 Los datos del catálogo viven en `public/data/products.json`.
 
-## WhatsApp
-
-El número está configurado en `public/config.js`.
+Si falta precio, la web muestra **Consultar**.
 
 ## Desarrollo
 
 ```bash
 npm install
+npm run optimize-images
 npm run dev
 ```
 
@@ -38,12 +44,8 @@ npm run dev
 npm run validate
 ```
 
-El validador detecta IDs duplicados o datos obligatorios faltantes. Las fotos pendientes se reportan como avisos y no bloquean el deploy.
-
 ## Deploy
 
 ```bash
 npm run deploy
 ```
-
-Ver `docs/CATALOG_WORKFLOW.md` para el flujo de carga.
