@@ -423,5 +423,22 @@
     "image": null,
     "description": "Talle a confirmar",
     "order": 25
+  },
+  {
+    "id": "VG-026",
+    "name": "Holman · Biblia de Estudio RVR 1960",
+    "category": "Libros",
+    "type": "Biblia de estudio",
+    "brand": "Holman",
+    "size": null,
+    "color": "Rojo / Negro / Blanco",
+    "condition": "Muy buen estado",
+    "price": null,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": null,
+    "description": "Biblia de estudio Holman, Reina-Valera 1960. Incluye notas de estudio, mapas, gráficos y estudio de palabras griegas y hebreas.",
+    "order": 26
   }
 ]
