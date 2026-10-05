@@ -457,5 +457,39 @@
     "image": null,
     "description": "Comentario bíblico histórico ilustrado de Alfred Edersheim. Edición 6 tomos en 1.",
     "order": 27
+  },
+  {
+    "id": "VG-028",
+    "name": "James Smith · Sermones y Bosquejos de Toda la Biblia",
+    "category": "Libros",
+    "type": "Sermones / bosquejos",
+    "brand": null,
+    "size": null,
+    "color": "Marrón / Azul",
+    "condition": "Buen estado",
+    "price": null,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": null,
+    "description": "Compendio de sermones y bosquejos de toda la Biblia de James Smith. Edición 13 tomos en 1.",
+    "order": 28
+  },
+  {
+    "id": "VG-029",
+    "name": "William Barclay · Comentario al Nuevo Testamento",
+    "category": "Libros",
+    "type": "Comentario bíblico",
+    "brand": null,
+    "size": null,
+    "color": "Verde / Negro",
+    "condition": "Muy buen estado",
+    "price": null,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": null,
+    "description": "Comentario al Nuevo Testamento de William Barclay. Edición 17 tomos en 1.",
+    "order": 29
   }
 ]
