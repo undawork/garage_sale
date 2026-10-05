@@ -47,7 +47,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Buzo azul de Zara en talle XL.",
     "order": 3
   },
   {
@@ -149,7 +149,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Hoodie marrón Revolver en talle XXL.",
     "order": 9
   },
   {
@@ -183,7 +183,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Camisa crema de Zara en talle XL.",
     "order": 11
   },
   {
@@ -200,7 +200,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Camisa verde H&M en talle L.",
     "order": 12
   },
   {
@@ -217,7 +217,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Sweater verde Equus en talle XXL.",
     "order": 13
   },
   {
@@ -234,7 +234,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Sweater rojo Equus en talle XXL.",
     "order": 14
   },
   {
@@ -251,7 +251,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Pantalón de vestir Zara azul marino, talle 46.",
     "order": 15
   },
   {
@@ -268,7 +268,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Blazer negro Zara, talle 54.",
     "order": 16
   },
   {
@@ -302,7 +302,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Camisa beige H&M en talle XL.",
     "order": 18
   },
   {
@@ -336,7 +336,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Camisa vaquera H&M en gris carbón, talle XL.",
     "order": 20
   },
   {
@@ -353,7 +353,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Pantalón de pana Lee en marrón, talle 38.",
     "order": 21
   },
   {
@@ -370,7 +370,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Pantalón chino Zara color crema, talle 44.",
     "order": 22
   },
   {
@@ -387,7 +387,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Pantalón chino Zara negro, talle 46.",
     "order": 23
   },
   {
@@ -404,7 +404,7 @@
     "availability": "Disponible",
     "publish": true,
     "image": null,
-    "description": null,
+    "description": "Pantalón de vestir Zara negro, talle 46.",
     "order": 24
   },
   {
