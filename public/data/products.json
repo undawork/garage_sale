@@ -440,5 +440,22 @@
     "image": null,
     "description": "Biblia de estudio Holman, Reina-Valera 1960. Incluye notas de estudio, mapas, gráficos y estudio de palabras griegas y hebreas.",
     "order": 26
+  },
+  {
+    "id": "VG-027",
+    "name": "Alfred Edersheim · Comentario Bíblico Histórico Ilustrado",
+    "category": "Libros",
+    "type": "Comentario bíblico",
+    "brand": null,
+    "size": null,
+    "color": "Azul / Marrón",
+    "condition": "Muy buen estado",
+    "price": null,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": null,
+    "description": "Comentario bíblico histórico ilustrado de Alfred Edersheim. Edición 6 tomos en 1.",
+    "order": 27
   }
 ]
