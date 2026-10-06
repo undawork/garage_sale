@@ -491,5 +491,22 @@
     "image": null,
     "description": "Comentario al Nuevo Testamento de William Barclay. Edición 17 tomos en 1.",
     "order": 29
+  },
+  {
+    "id": "VG-030",
+    "name": "Sombrero Fedora Negro",
+    "category": "Accesorios",
+    "type": "Sombrero",
+    "brand": null,
+    "size": null,
+    "color": "Negro",
+    "condition": "Muy buen estado",
+    "price": 42000,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": null,
+    "description": "Sombrero estilo fedora de fieltro negro con ala ancha.",
+    "order": 30
   }
 ]
