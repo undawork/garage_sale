@@ -65,3 +65,15 @@ a{color:inherit}input:focus-visible,select:focus-visible,textarea:focus-visible,
 @media(max-width:700px){.intro{padding:35px 0 25px}.bar-inner{height:66px}.brand{font-size:21px}.brand small{display:none}.links{gap:10px}.links a{font-size:11px}.wrap{padding-bottom:48px}.panel{padding:16px}.upload-panel{display:block}.dropzone{min-height:215px}.privacy-note{margin-top:14px}.tips{margin-top:16px}.draft{grid-template-columns:96px minmax(0,1fr);gap:11px;padding:10px}.draft-thumb{width:96px;height:136px}.draft-body{padding-right:0}.draft .remove{top:9px;right:10px}.draft-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.draft-fields label.wide{grid-column:1/-1}.draft-name{padding-right:65px}.draft-top{padding-right:65px}.draft-fields input,.draft-fields select,.draft-fields textarea{padding:8px}.draft-fields label{font-size:10px}.publish-tools{align-items:stretch;flex-direction:column}.publish{width:100%}.info-band{grid-template-columns:1fr}}
 @media(max-width:390px){.draft{grid-template-columns:1fr}.draft-thumb{width:100%;height:170px}.draft-top,.draft-name{padding-right:58px}.intro h1{font-size:3rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+/* Confirmación clara del alta y estado real de la fotografía */
+.success{border-left-color:#a48b73;background:#f8f6f2;color:#33302c}
+.receipt-heading{display:block;font-size:14px;font-weight:850;color:#292825}
+.receipt-intro{margin:8px 0 15px;color:#625f5b;font-size:12px;line-height:1.65}
+.receipt-list{border-top:1px solid #e5e1da}
+.receipt-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #e5e1da}
+.receipt-product strong{display:block;font-size:12px;color:#282722}.receipt-product small{display:block;margin-top:3px;font-size:11px;color:#858079}
+.receipt-state{display:inline-flex;align-items:center;text-align:right;flex:none;font-size:11px;color:#9b724e;font-weight:800}
+.receipt-state.ready{color:#35634b}
+.receipt-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:15px}
+.receipt-link{font-size:12px;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:450px){.receipt-row{align-items:flex-start;flex-direction:column;gap:7px}.receipt-state{text-align:left}}
