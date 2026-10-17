@@ -5,7 +5,7 @@ const money=v=>v===null||v===undefined||v===""?"Consultar":new Intl.NumberFormat
 const photoURL=p=>p.image||("/products/"+p.id+".webp");
 const form=$("#form"),dialog=$("#editDialog"),addDialog=$("#addDialog"),frame=$("#addFrame");
 const keys=["id","name","category","type","brand","size","color","condition","price","availability","order","description"];
-let products=[],sha="",readOnly=true,busy=false,dirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null;
+let products=[],sha="",readOnly=true,busy=false,dirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null,localSource=null,photoRotation=0;
 const selected=new Set();
 function notify(message,error=false){
   const node=$("#notice");node.textContent=message;node.classList.toggle("error",error);node.hidden=!message;
@@ -94,15 +94,27 @@ function applyFilter(value){
   document.querySelectorAll("[data-filter]").forEach(b=>{const active=b.dataset.filter===value;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))});
   render();
 }
-function revoke(){if(localURL){URL.revokeObjectURL(localURL);localURL=null}}
+function revoke(){
+  if(localURL)URL.revokeObjectURL(localURL);
+  localURL=null;localSource=null;photoRotation=0;
+  $("#editorRotate").hidden=true;
+  $("#editorRotateLabel").hidden=true;
+  $("#rotatedPreview").hidden=true;
+}
 function current(){return products.find(p=>p.id===currentId)||null}
 function photoPreview(p){
-  const img=$("#preview"),fallback=$("#imageEmpty");
-  img.hidden=true;fallback.hidden=false;img.removeAttribute("src");
-  img.onload=()=>{img.hidden=false;fallback.hidden=true};
+  const img=$("#preview"),fallback=$("#imageEmpty"),canvas=$("#rotatedPreview");
+  img.hidden=true;canvas.hidden=true;fallback.hidden=false;img.removeAttribute("src");
+  if(localURL){
+    if(localSource?.naturalWidth){
+      window.GarageImageTools.draw(canvas,localSource,photoRotation,24);
+      canvas.hidden=false;fallback.hidden=true;
+    }
+    return;
+  }
+  img.onload=()=>{if(!localURL){img.hidden=false;fallback.hidden=true}};
   img.onerror=()=>{img.hidden=true;fallback.hidden=false};
-  if(localURL)img.src=localURL;
-  else if(p)img.src=photoURL(p);
+  if(p)img.src=photoURL(p);
 }
 function preview(){
   const get=k=>form.elements.namedItem(k)?.value||"";
@@ -148,20 +160,8 @@ function buildDraft(){
   draft.currency="ARS";
   return draft;
 }
-async function jpegData(file){
-  let bitmap;
-  try{
-    bitmap=await createImageBitmap(file);
-    const scale=Math.min(1,1500/Math.max(bitmap.width,bitmap.height));
-    const canvas=document.createElement("canvas");
-    canvas.width=Math.max(1,Math.round(bitmap.width*scale));
-    canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-    canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);
-    let base=canvas.toDataURL("image/jpeg",.82);
-    if(base.length>2600000)base=canvas.toDataURL("image/jpeg",.67);
-    if(base.length>2800000)throw Error("La imagen supera 2 MB después de optimizarla.");
-    return base;
-  }finally{bitmap?.close()}
+async function jpegData(file,rotation=0){
+  return window.GarageImageTools.toJpegData(file,rotation,"editor");
 }
 async function photoReady(p){
   try{
@@ -207,7 +207,7 @@ async function submitEdit(event){
     busy=true;$("#save").disabled=true;render();
     report("Datos guardados. Enviando la fotografía…");
     try{
-      const image=await jpegData(file);
+      const image=await jpegData(file,photoRotation);
       await api("image",{method:"PUT",body:JSON.stringify({id:edited.id,data:image})});
       report("Datos y foto enviados. La imagen se verá después del procesamiento y despliegue.");
       notify("Datos y fotografía guardados. La foto nueva tardará unos minutos en aparecer en la tienda.");
@@ -271,10 +271,37 @@ form.addEventListener("input",e=>{if(e.target.id==="photo")return;dirty=true;pre
 form.addEventListener("change",e=>{if(e.target.id==="photo")return;dirty=true;preview()});
 form.addEventListener("submit",submitEdit);
 $("#photo").addEventListener("change",e=>{
-  revoke();const file=e.target.files?.[0];
-  if(file){localURL=URL.createObjectURL(file);photoPreview(current());dirty=true;report("Foto seleccionada. Se enviará al guardar.");}
-  else photoPreview(current());
+  revoke();
+  const file=e.target.files?.[0];
+  if(file){
+    localURL=URL.createObjectURL(file);
+    const image=new Image();localSource=image;
+    image.onload=()=>{
+      if(localSource===image){
+        photoPreview(current());
+        report("Foto lista para revisar. Podés girarla antes de guardar.");
+      }
+    };
+    image.onerror=()=>{
+      if(localSource===image)report("No se pudo abrir esta imagen. Probá con JPG o PNG.",true);
+    };
+    image.src=localURL;
+    $("#editorRotate").hidden=false;
+    $("#editorRotateLabel").hidden=false;
+    $("#editorRotateLabel").textContent="Orientación original";
+    dirty=true;
+    report("Preparando vista previa de la foto…");
+  }else photoPreview(current());
 });
+function rotateEditorPhoto(delta){
+  if(!localURL||busy)return;
+  photoRotation=window.GarageImageTools.angle(photoRotation+delta);
+  photoPreview(current());
+  $("#editorRotateLabel").textContent=photoRotation?"Rotación: "+photoRotation+"°. Se guardará en esa posición.":"Orientación original";
+  dirty=true;
+}
+$("#editorRotateLeft").addEventListener("click",()=>rotateEditorPhoto(-90));
+$("#editorRotateRight").addEventListener("click",()=>rotateEditorPhoto(90));
 $("#closeEditor").addEventListener("click",requestCloseEditor);
 $("#cancelEditor").addEventListener("click",requestCloseEditor);
 dialog.addEventListener("cancel",e=>{e.preventDefault();requestCloseEditor()});
