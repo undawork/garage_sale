@@ -4,7 +4,7 @@ const json = (value, status = 200) => new Response(JSON.stringify(value), {statu
 const decode = text => Uint8Array.from(atob(text.replace(/-/g,"+").replace(/_/g,"/")), c=>c.charCodeAt(0));
 const encode = text => btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 async function authorized(request, env) {
-  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.GITHUB_TOKEN) return false;
+  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD) return false;
   const token = request.headers.get("cf-access-jwt-assertion");
   if (!token) return false;
   const parts = token.split(".");
@@ -74,11 +74,17 @@ export default {
     if(request.method!=="GET" && (request.headers.get("origin")!==url.origin || !request.headers.get("content-type")?.startsWith("application/json"))) return json({error:"Solicitud no permitida"},403);
     try {
       if (url.pathname==="/api/admin/products" && request.method==="GET") {
+        if (!env.GITHUB_TOKEN) {
+          const res = await env.ASSETS.fetch(new Request(new URL("/data/products.json", url.origin)));
+          if (!res.ok) return json({error:"No se pudo leer el catálogo"},502);
+          return json({products:await res.json(),sha:null,readOnly:true});
+        }
         const file=await github(env,PATH);
         const data=JSON.parse(new TextDecoder().decode(decode(file.content.replace(/\s/g,""))));
-        return json({products:data,sha:file.sha});
+        return json({products:data,sha:file.sha,readOnly:false});
       }
       if (url.pathname==="/api/admin/products" && request.method==="PUT") {
+        if (!env.GITHUB_TOKEN) return json({error:"La edición requiere configurar GITHUB_TOKEN en Cloudflare."},503);
         const payload=await request.json();
         if(typeof payload.sha!=="string" || !/^[a-f0-9]{40}$/.test(payload.sha)) return json({error:"Versión requerida"},400);
         const products=validate(payload.products);
@@ -86,6 +92,7 @@ export default {
         return json({sha:saved.content.sha});
       }
       if (url.pathname==="/api/admin/image" && request.method==="PUT") {
+        if (!env.GITHUB_TOKEN) return json({error:"La carga de fotos requiere configurar GITHUB_TOKEN en Cloudflare."},503);
         const input=await request.json();
         if(!/^VG-\d{3,5}$/.test(input.id||"") || !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(input.data||"") || input.data.length>2800000) return json({error:"Foto inválida (JPEG hasta 2 MB)"},400);
         const path="source-images/"+input.id+".jpg";
