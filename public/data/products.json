@@ -1,22 +1,5 @@
 [
   {
-    "id": "VG-001",
-    "name": "Zara · Sweater Slim Azul Marino",
-    "category": "Ropa",
-    "type": "Sweater",
-    "brand": "Zara",
-    "size": "XL",
-    "color": "Azul Marino",
-    "condition": "Como Nuevo",
-    "price": 32000,
-    "currency": "ARS",
-    "availability": "Vendido",
-    "publish": true,
-    "image": null,
-    "description": "Corte slim",
-    "order": 1
-  },
-  {
     "id": "VG-003",
     "name": "Zara · Buzo Azul",
     "category": "Ropa",
@@ -508,5 +491,22 @@
     "image": null,
     "description": "Diseño degradé",
     "order": 2
+  },
+  {
+    "id": "VG-001",
+    "name": "Zara · Sweater Slim Azul Marino",
+    "category": "Ropa",
+    "type": "Sweater",
+    "brand": "Zara",
+    "size": "XL",
+    "color": "Azul Marino",
+    "condition": "Como Nuevo",
+    "price": 32000,
+    "currency": "ARS",
+    "availability": "Vendido",
+    "publish": true,
+    "image": null,
+    "description": "Corte slim",
+    "order": 1
   }
 ]
