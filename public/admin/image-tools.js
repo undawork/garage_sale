@@ -74,10 +74,27 @@
         canvas.height = Math.max(1, Math.round(orientedH * scale));
       }
       draw(canvas, source, degrees, padding);
-      let result = canvas.toDataURL("image/jpeg", .82);
-      if (result.length > 2600000) result = canvas.toDataURL("image/jpeg", .65);
-      if (result.length > 2800000) throw Error("La fotografía supera el tamaño permitido luego de girarla y optimizarla.");
-      return result;
+      // GitHub's admin endpoint accepts JPEG data URLs under ~2 MB.
+      // Some generated PNGs are visually simple but encode to large JPEGs;
+      // automatically try lower quality and dimensions instead of failing.
+      let working = canvas;
+      for (let pass = 0; pass < 4; pass++) {
+        for (const quality of [.85, .72, .58, .44]) {
+          const result = working.toDataURL("image/jpeg", quality);
+          if (!result.startsWith("data:image/jpeg;base64,")) {
+            throw Error("Tu navegador no pudo convertir esta imagen a JPG. Probá subir un archivo JPG.");
+          }
+          if (result.length <= 2700000) return result;
+        }
+        const reduced = document.createElement("canvas");
+        reduced.width = Math.max(1, Math.round(working.width * .8));
+        reduced.height = Math.max(1, Math.round(working.height * .8));
+        const ctx = reduced.getContext("2d");
+        if (!ctx) throw Error("No se pudo ajustar el tamaño de la imagen.");
+        ctx.drawImage(working, 0, 0, reduced.width, reduced.height);
+        working = reduced;
+      }
+      throw Error("No se pudo reducir esta fotografía al tamaño permitido. Probá con JPG.");
     } finally {
       loaded.close();
     }
