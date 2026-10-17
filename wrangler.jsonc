@@ -1,7 +1,24 @@
 {
   "name": "garage-sale",
   "compatibility_date": "2026-10-04",
+  "main": "src/worker.js",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/admin",
+      "/admin/*",
+      "/api/admin/*"
+    ]
+  },
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "tiny-band-734e.cloudflareaccess.com",
+    "ACCESS_AUD": "a996c0e88e199bbda0669f725dc9e93226f2a049e4cd05b68f46f84dcc4bc05b"
+  },
+  "previews": {
+    "vars": {
+      "ACCESS_TEAM_DOMAIN": "preview-disabled.cloudflareaccess.com",
+      "ACCESS_AUD": "preview-not-authorized"
+    }
   }
 }
