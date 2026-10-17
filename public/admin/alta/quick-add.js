@@ -23,7 +23,7 @@ function setReady(){
     count+" "+(count===1?"producto listo para revisar":"productos para revisar");
   action.disabled=!count||publishing||!catalogLoaded;
   action.textContent=publishing?"Procesando lote…":
-    count===1?"Publicar producto ↗":"Publicar "+count+" productos ↗";
+    count===1?"Guardar borrador ↗":"Guardar "+count+" borradores ↗";
   input.disabled=publishing;
   cards.querySelectorAll("input,select,textarea,button").forEach(el=>el.disabled=publishing);
 }
@@ -44,7 +44,7 @@ function addFiles(files){
     if(drafts.some(d=>d.file.name===file.name&&d.file.size===file.size&&d.file.lastModified===file.lastModified)){skipped++;continue}
     const draft={file,url:URL.createObjectURL(file),name:readableFilename(file.name),
       category:"",type:"",brand:"",size:"",condition:"",price:"",description:"",
-      visible:true,assignedId:null,uploaded:false,note:"",error:false};
+      visible:false,assignedId:null,uploaded:false,note:"",error:false};
     drafts.push(draft);accepted++;
     cards.append(renderCard(draft));
   }
@@ -114,10 +114,7 @@ function renderCard(draft){
     field(draft,"Estado / condición","condition",{placeholder:"Ej.: Excelente"}),
     field(draft,"Descripción","description",{wide:true,textarea:true})
   );
-  const visible=txt("label","draft-footer");
-  const check=document.createElement("input");check.type="checkbox";check.checked=draft.visible;
-  check.addEventListener("change",()=>{draft.visible=check.checked});
-  visible.append(check,txt("span","","Publicar visible en la tienda"));
+  const visible=txt("p","draft-footer","Se guardará como borrador privado. Podés publicarlo desde el inventario cuando la foto esté lista.");
   body.append(top,grid,visible);
   const note=txt("p","draft-state","Listo para revisar");
   body.append(note);card.append(thumb,body,remove);
@@ -172,8 +169,8 @@ async function jpegData(file){
    GitHub Actions genera los WebP y Cloudflare publica la nueva versión. */
 function showReceipt(batch){
   result.replaceChildren();
-  const title=txt("strong","receipt-heading","✓ "+batch.length+" "+(batch.length===1?"producto guardado":"productos guardados")+" en GitHub");
-  const caption=txt("p","receipt-intro","Las fichas ya están guardadas. Ahora se están optimizando las fotos y actualizando la tienda. Podés salir de esta pantalla: el proceso continúa igualmente.");
+  const title=txt("strong","receipt-heading","✓ "+batch.length+" "+(batch.length===1?"borrador guardado":"borradores guardados")+" en GitHub");
+  const caption=txt("p","receipt-intro","Las fichas están guardadas como borradores ocultos. Las fotos se optimizan; después podés revisar cada artículo y publicarlo desde el inventario.");
   const list=txt("div","receipt-list");
   const statuses=new Map();
   for(const product of batch){
@@ -223,8 +220,8 @@ async function watchPublication(batch,statuses,caption){
         }
       }
       if(allReady){
-        caption.textContent="¡Todo listo! Las fotografías ya están disponibles. Podés abrir la tienda o volver al inventario.";
-        status("¡Listo! Las fotos ya están publicadas.");
+        caption.textContent="¡Fotos disponibles! Ahora podés abrir el inventario, revisar las fichas y decidir cuáles publicar.";
+        status("¡Listo! Fotos disponibles. Tus nuevos artículos siguen ocultos hasta que los publiques.");
         return;
       }
     }catch{
@@ -287,7 +284,7 @@ async function publish(){
       id:d.assignedId,name:d.name,category:d.category,type:d.type.trim(),
       brand:d.brand.trim(),size:d.size.trim(),color:"",condition:d.condition.trim(),
       price:d.price===""?null:Number(d.price),currency:"ARS",availability:"Disponible",
-      publish:d.visible,image:"/products/"+d.assignedId+".webp",
+      publish:false,image:"/products/"+d.assignedId+".webp",
       description:d.description.trim(),order:orderStart+i+1
     }));
     await request("products",{method:"PUT",body:JSON.stringify({sha:latest.sha,products:[...latest.products,...batch]})});
@@ -295,10 +292,11 @@ async function publish(){
     drafts.forEach(d=>URL.revokeObjectURL(d.url));
     drafts.length=0;cards.replaceChildren();
     const empty=txt("div","empty-drafts");
-    empty.append(txt("span","","✓"),txt("strong","","Productos guardados"),txt("p","","Podés cargar otra tanda cuando quieras."));
+    empty.append(txt("span","","✓"),txt("strong","","Borradores guardados"),txt("p","","Podés cargar otra tanda cuando quieras."));
     cards.append(empty);setReady();
     showReceipt(savedBatch);
-    status("Fichas guardadas. Las fotografías siguen procesándose hasta que estén visibles en la tienda.");
+    if(window.parent!==window)window.parent.postMessage({type:"garage-sale:batch-saved",count:savedBatch.length},location.origin);
+    status("Borradores guardados. Se procesarán las fotos antes de que decidas publicarlos.");
     }catch(e){status(e.message,true)}
   finally{publishing=false;setReady()}
 }
@@ -309,3 +307,5 @@ zone.addEventListener("drop",e=>{e.preventDefault();zone.classList.remove("drago
 action.addEventListener("click",publish);
 window.addEventListener("beforeunload",e=>{if(drafts.length){e.preventDefault();e.returnValue=""}});
 load();
+
+window.hasUnsavedProductDrafts=()=>drafts.length>0;
