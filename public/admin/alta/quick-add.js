@@ -93,8 +93,8 @@ function renderCard(draft){
   photo.setAttribute("aria-label","Vista previa de "+draft.file.name+" con la orientación seleccionada");
   thumb.append(photo);
   const rotateControls=txt("div","rotate-controls");
-  const left=txt("button","rotate-button","↶ Izquierda");
-  const right=txt("button","rotate-button","Derecha ↷");
+  const left=txt("button","rotate-button","↶ 90°");
+  const right=txt("button","rotate-button","90° ↷");
   left.type="button";right.type="button";
   left.setAttribute("aria-label","Girar "+draft.file.name+" 90 grados a la izquierda");
   right.setAttribute("aria-label","Girar "+draft.file.name+" 90 grados a la derecha");
