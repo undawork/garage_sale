@@ -136,23 +136,6 @@
     "order": 21
   },
   {
-    "id": "VG-022",
-    "name": "Zara · Pantalón Chino Crema",
-    "category": "Ropa",
-    "type": "Pantalón",
-    "brand": "Zara",
-    "size": "44",
-    "color": "Crema",
-    "condition": "Como Nuevo",
-    "price": 36000,
-    "currency": "ARS",
-    "availability": "Disponible",
-    "publish": true,
-    "image": null,
-    "description": "Pantalón chino Zara color crema, talle 44.",
-    "order": 22
-  },
-  {
     "id": "VG-023",
     "name": "Zara · Pantalón Chino Negro",
     "category": "Ropa",
