@@ -45,7 +45,7 @@ function addFiles(files){
     if(drafts.some(d=>d.file.name===file.name&&d.file.size===file.size&&d.file.lastModified===file.lastModified)){skipped++;continue}
     const draft={file,url:URL.createObjectURL(file),name:readableFilename(file.name),
       category:"",type:"",brand:"",size:"",condition:"",price:"",description:"",
-      visible:false,assignedId:null,uploaded:false,note:"",error:false};
+      visible:false,assignedId:null,uploaded:false,rotation:0,source:null,note:"",error:false};
     drafts.push(draft);accepted++;
     cards.append(renderCard(draft));
   }
@@ -86,8 +86,39 @@ function updateNote(draft){
 }
 function renderCard(draft){
   const card=txt("article","draft");draft.node=card;
-  const thumb=txt("div","draft-thumb"),photo=document.createElement("img");
-  photo.src=draft.url;photo.alt="Vista previa de "+draft.file.name;thumb.append(photo);
+  const photoColumn=txt("div","photo-column");
+  const thumb=txt("div","draft-thumb"),photo=document.createElement("canvas");
+  photo.width=240;photo.height=300;
+  photo.setAttribute("role","img");
+  photo.setAttribute("aria-label","Vista previa de "+draft.file.name+" con la orientación seleccionada");
+  thumb.append(photo);
+  const rotateControls=txt("div","rotate-controls");
+  const left=txt("button","rotate-button","↶ 90°");
+  const right=txt("button","rotate-button","90° ↷");
+  left.type="button";right.type="button";
+  left.setAttribute("aria-label","Girar "+draft.file.name+" 90 grados a la izquierda");
+  right.setAttribute("aria-label","Girar "+draft.file.name+" 90 grados a la derecha");
+  function repaint(){
+    if(draft.source?.naturalWidth)window.GarageImageTools.draw(photo,draft.source,draft.rotation,14);
+  }
+  function rotate(amount){
+    if(publishing)return;
+    draft.rotation=window.GarageImageTools.angle(draft.rotation+amount);
+    draft.uploaded=false; // In a retry, the changed orientation must be uploaded again.
+    repaint();
+    draft.note=draft.rotation?"Giro aplicado: "+draft.rotation+"°. Se guardará así.":"Orientación original restaurada.";
+    draft.error=false;updateNote(draft);
+  }
+  left.addEventListener("click",()=>rotate(-90));
+  right.addEventListener("click",()=>rotate(90));
+  rotateControls.append(left,right);
+  photoColumn.append(thumb,rotateControls);
+  const previewSource=new Image();draft.source=previewSource;
+  previewSource.onload=repaint;
+  previewSource.onerror=()=>{
+    draft.error=true;draft.note="No se pudo mostrar esta foto. Probá JPG o PNG.";updateNote(draft);
+  };
+  previewSource.src=draft.url;
   const body=txt("div","draft-body");
   const top=txt("div","draft-top"),position=txt("span","draft-index","PRODUCTO "+(drafts.length));
   const code=txt("span","draft-id","Código asignado al publicar");
@@ -118,7 +149,7 @@ function renderCard(draft){
   const visible=txt("p","draft-footer","Se guardará como borrador privado. Podés publicarlo desde el inventario cuando la foto esté lista.");
   body.append(top,grid,visible);
   const note=txt("p","draft-state","Listo para revisar");
-  body.append(note);card.append(thumb,body,remove);
+  body.append(note);card.append(photoColumn,body,remove);
   return card;
 }
 async function request(path,opts={}){
@@ -139,31 +170,8 @@ function verifyDrafts(){
   }
   return true;
 }
-async function jpegData(file){
-  let image,source;
-  try{
-    try{source=await createImageBitmap(file);image=source}
-    catch{
-      image=await new Promise((resolve,reject)=>{
-        const img=new Image(),url=URL.createObjectURL(file);
-        img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};
-        img.onerror=()=>{URL.revokeObjectURL(url);reject(Error("El navegador no puede procesar esta imagen. Probá con JPG o PNG."))};
-        img.src=url;
-      });
-    }
-    const width=image.width||image.naturalWidth,height=image.height||image.naturalHeight;
-    if(!width||!height)throw Error("La fotografía no tiene dimensiones válidas.");
-    const canvas=document.createElement("canvas");canvas.width=1200;canvas.height=1500;
-    const ctx=canvas.getContext("2d");
-    if(!ctx)throw Error("No se pudo preparar la fotografía.");
-    ctx.fillStyle="#f8f8f6";ctx.fillRect(0,0,1200,1500);
-    const scale=Math.min(1060/width,1360/height),w=Math.round(width*scale),h=Math.round(height*scale);
-    ctx.drawImage(image,Math.round((1200-w)/2),Math.round((1500-h)/2),w,h);
-    let data=canvas.toDataURL("image/jpeg",.82);
-    if(data.length>2600000)data=canvas.toDataURL("image/jpeg",.64);
-    if(data.length>2800000)throw Error("La fotografía supera el tamaño permitido después de optimizarla.");
-    return data;
-  }finally{if(source&&typeof source.close==="function")source.close()}
+async function jpegData(file,rotation=0){
+  return window.GarageImageTools.toJpegData(file,rotation,"batch");
 }
 
 /* El alta de fichas y la publicación de sus fotos son dos procesos distintos:
@@ -266,7 +274,7 @@ async function publish(){
       d.note="Preparando fotografía…";updateNote(d);
       status("Preparando y subiendo foto "+(i+1)+" de "+drafts.length+"…");
       try{
-        const data=await jpegData(d.file);
+        const data=await jpegData(d.file,d.rotation);
         await request("image",{method:"PUT",body:JSON.stringify({id:d.assignedId,data})});
         d.uploaded=true;uploadCount++;
         d.note="Foto enviada correctamente ✓";d.error=false;updateNote(d);

@@ -102,3 +102,13 @@ body.embedded .receipt-link{color:#333}
  body.embedded .section-heading h2{font-size:23px}
  body.embedded .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Giro real por producto: la vista previa usa el mismo renderer que el archivo enviado. */
+.photo-column{min-width:0;width:140px;display:flex;flex-direction:column;gap:7px}
+.draft-thumb canvas{display:block;width:100%;height:100%;object-fit:contain;background:#f8f8f6}
+.rotate-controls{display:flex;gap:5px;align-items:stretch}
+.rotate-button{min-width:0;flex:1;padding:9px 5px;border-radius:4px;border:1px solid #d1cdc8;background:#fff;color:#272726;font-size:11px;font-weight:780;white-space:nowrap}
+.rotate-button:hover:not(:disabled){background:#efebe6;border-color:#a99684}
+.rotate-button:focus-visible{outline:3px solid #a48b73;outline-offset:2px}
+@media(max-width:700px){.photo-column{width:96px}.rotate-button{font-size:10px;padding:8px 3px}}
+@media(max-width:390px){.photo-column{width:100%}.photo-column .draft-thumb{width:100%}}
