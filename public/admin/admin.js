@@ -211,6 +211,8 @@ async function uploadReplacementPhoto(){
     $("#photo").value="";
     photoDirty=false;dirty=formDirty;
     uploadButton.hidden=true;
+    $("#editorRotate").hidden=true;
+    $("#editorRotateLabel").hidden=true;
     help.textContent="✓ Foto recibida por GitHub. Se está optimizando y Cloudflare la publicará en unos minutos. La vista previa muestra la nueva imagen seleccionada.";
     report("✓ Fotografía enviada correctamente. La publicación puede tardar unos minutos.");
     notify("Fotografía de "+p.name+" subida correctamente. Se está procesando; no hace falta repetir la carga.");
@@ -334,7 +336,7 @@ $("#photo").addEventListener("change",e=>{
 });
 $("#uploadPhoto").addEventListener("click",uploadReplacementPhoto);
 function rotateEditorPhoto(delta){
-  if(!localURL||busy)return;
+  if(!localURL||!$("#photo").files?.length||busy)return;
   photoRotation=window.GarageImageTools.angle(photoRotation+delta);
   photoPreview(current());
   $("#editorRotateLabel").textContent=photoRotation?"Rotación: "+photoRotation+"°. Se guardará en esa posición.":"Orientación original";
