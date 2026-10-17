@@ -136,23 +136,6 @@
     "order": 21
   },
   {
-    "id": "VG-023",
-    "name": "Zara · Pantalón Chino Negro",
-    "category": "Ropa",
-    "type": "Pantalón",
-    "brand": "Zara",
-    "size": "46",
-    "color": "Negro",
-    "condition": "Nuevo con Etiqueta",
-    "price": 36000,
-    "currency": "ARS",
-    "availability": "Disponible",
-    "publish": true,
-    "image": null,
-    "description": "Pantalón chino Zara negro, talle 46.",
-    "order": 23
-  },
-  {
     "id": "VG-025",
     "name": "Zara · Short Cargo Azul Marino",
     "category": "Ropa",
