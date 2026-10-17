@@ -1,213 +1,304 @@
 "use strict";
-let products=[],sha="",currentId=null,readOnly=true,dirty=false,busy=false;
-const marked=new Set(),$=s=>document.querySelector(s),form=$("#form"),status=$("#status");
-const fields=["id","name","category","type","brand","size","color","condition","price","availability","order","description"];
-let localImageUrl=null;
-const money=value=>value==null||value===""?"Consultar":new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(Number(value));
-const picture=p=>p.image||("/products/"+p.id+".webp");
-function report(message,error=false){status.textContent=message;status.classList.toggle("error",error)}
-function notice(message,error=false){const node=$("#notice");node.textContent=message;node.classList.toggle("error",error);node.hidden=!message}
+const $=selector=>document.querySelector(selector);
+const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n};
+const money=v=>v===null||v===undefined||v===""?"Consultar":new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(Number(v));
+const photoURL=p=>p.image||("/products/"+p.id+".webp");
+const form=$("#form"),dialog=$("#editDialog"),addDialog=$("#addDialog"),frame=$("#addFrame");
+const keys=["id","name","category","type","brand","size","color","condition","price","availability","order","description"];
+let products=[],sha="",readOnly=true,busy=false,dirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null;
+const selected=new Set();
+function notify(message,error=false){
+  const node=$("#notice");node.textContent=message;node.classList.toggle("error",error);node.hidden=!message;
+}
+function report(message,error=false){
+  const node=$("#status");node.textContent=message;node.classList.toggle("error",error);
+}
 async function api(path,options={}){
-  const response=await fetch("/api/admin/"+path,{...options,headers:{"content-type":"application/json",...(options.headers||{})},credentials:"same-origin"});
+  const response=await fetch("/api/admin/"+path,{...options,credentials:"same-origin",headers:{"content-type":"application/json",...(options.headers||{})}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw Error(data.error||"Error "+response.status);
   return data;
 }
 function stats(){
-  const count=field=>products.filter(field).length;
+  const count=f=>products.filter(f).length;
   $("#stat-total").textContent=products.length;
-  $("#stat-available").textContent=count(p=>p.availability==="Disponible"&&p.publish!==false);
-  $("#stat-reserved").textContent=count(p=>p.availability==="Reservado"&&p.publish!==false);
+  $("#stat-available").textContent=count(p=>p.publish!==false&&p.availability!=="Vendido");
+  $("#stat-reserved").textContent=count(p=>p.availability==="Reservado");
   $("#stat-sold").textContent=count(p=>p.availability==="Vendido");
   $("#stat-hidden").textContent=count(p=>p.publish===false);
 }
+function categories(){
+  const filter=$("#categoryFilter"),prior=filter.value;
+  const values=[...new Set(products.map(p=>p.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  filter.replaceChildren();
+  filter.append(new Option("Todas las categorías","Todas"),...values.map(s=>new Option(s,s)));
+  filter.value=values.includes(prior)?prior:"Todas";categoryFilter=filter.value;
+}
 function filtered(){
   const search=$("#search").value.trim().toLocaleLowerCase("es");
-  const filter=$("#statusFilter").value;
-  return [...products].filter(p=>{
-    if(filter==="Oculto"&&p.publish!==false)return false;
-    if(filter!=="Todos"&&filter!=="Oculto"&&(p.availability!==filter||p.publish===false))return false;
-    return !search||(p.name+" "+p.id+" "+(p.brand||"")).toLocaleLowerCase("es").includes(search);
-  }).sort((a,b)=>(a.order||9999)-(b.order||9999));
+  return products.filter(p=>{
+    if(searchFilter==="Oculto"&&p.publish!==false)return false;
+    if(searchFilter==="Disponible"&&(p.availability!=="Disponible"||p.publish===false))return false;
+    if(searchFilter==="Reservado"&&(p.availability!=="Reservado"||p.publish===false))return false;
+    if(searchFilter==="Vendido"&&p.availability!=="Vendido")return false;
+    if(categoryFilter!=="Todas"&&p.category!==categoryFilter)return false;
+    return !search||[p.name,p.id,p.brand,p.type,p.category].filter(Boolean).join(" ").toLocaleLowerCase("es").includes(search);
+  }).sort((a,b)=>(a.order||99999)-(b.order||99999));
 }
-function pill(p){
-  const label=p.publish===false?"Oculto":p.availability||"Disponible";
-  const el=document.createElement("span");el.className="pill "+(label==="Vendido"?"sold":label==="Reservado"?"reserved":label==="Oculto"?"hidden":"");el.textContent=label;return el;
+function tagLabel(p){return p.publish===false?"Borrador":p.availability||"Disponible"}
+function card(p){
+  const node=el("article","item-card"+(selectionMode?" selection-mode":"")+(selected.has(p.id)?" selected":""));
+  const main=el("button","card-main");main.type="button";main.setAttribute("aria-label",(selectionMode?"Seleccionar ":"Editar ")+p.name);
+  main.addEventListener("click",()=>{
+    if(selectionMode){selected.has(p.id)?selected.delete(p.id):selected.add(p.id);render();return}
+    openEditor(p.id);
+  });
+  const photo=el("div","card-photo"),placeholder=el("div","card-placeholder");
+  placeholder.append(el("span","","◇"),el("small","","Foto pendiente"));
+  photo.append(placeholder);
+  const img=document.createElement("img");img.loading="lazy";img.alt="Foto de "+p.name;
+  img.addEventListener("error",()=>img.remove(),{once:true});
+  img.src=photoURL(p);photo.append(img);
+  const status=tagLabel(p);
+  const badge=el("span","card-tag"+(status==="Borrador"?" hidden":status==="Reservado"?" reserved":status==="Vendido"?" sold":""),status);
+  photo.append(badge);
+  const data=el("div","card-data");
+  data.append(el("span","card-type",[p.category,p.type].filter(Boolean).join(" · ").toLocaleUpperCase("es")));
+  data.append(el("h3","card-title",p.name));
+  data.append(el("span","card-sub",[p.brand,p.size?"Talle "+p.size:null].filter(Boolean).join(" · ")));
+  const bottom=el("div","card-bottom");
+  bottom.append(el("strong","card-price",money(p.price)),el("span","card-arrow","↗"));
+  data.append(bottom);main.append(photo,data);node.append(main);
+  const selector=el("label","item-selector");
+  selector.setAttribute("aria-label","Seleccionar "+p.name);
+  const check=document.createElement("input");check.type="checkbox";check.checked=selected.has(p.id);
+  check.addEventListener("change",()=>{
+    if(check.checked)selected.add(p.id);else selected.delete(p.id);render();
+  });
+  selector.append(check);node.append(selector);
+  return node;
 }
-function list(){
-  const rows=filtered(),listEl=$("#items");
-  $("#count").textContent=rows.length+" de "+products.length+" productos";
-  listEl.replaceChildren();
-  for(const p of rows){
-    const row=document.createElement("div");row.className="item-row"+(p.id===currentId?" active":"");
-    const check=document.createElement("input");check.type="checkbox";check.className="item-select";check.checked=marked.has(p.id);check.setAttribute("aria-label","Seleccionar "+p.id);
-    check.addEventListener("change",()=>{if(check.checked)marked.add(p.id);else marked.delete(p.id);list()});
-    const img=document.createElement("img");img.className="item-thumb";img.src=picture(p);img.alt="";img.loading="lazy";
-    img.addEventListener("error",()=>{const empty=document.createElement("span");empty.className="item-thumb item-placeholder";empty.textContent="Sin foto";img.replaceWith(empty)},{once:true});
-    const open=document.createElement("button");open.type="button";open.className="item-open";
-    const name=document.createElement("strong");name.textContent=p.name;const info=document.createElement("small");info.textContent=p.id+" · "+money(p.price);
-    open.append(name,info);open.addEventListener("click",()=>choose(p.id));
-    row.append(check,img,open,pill(p));listEl.append(row);
-  }
-  const all=rows.length>0&&rows.every(p=>marked.has(p.id));
-  const select=$("#selectAll");select.checked=all;select.indeterminate=rows.some(p=>marked.has(p.id))&&!all;
-  $("#bulk").hidden=marked.size===0;$("#bulkCount").textContent=marked.size+" seleccionados";
-  $("#clearSelection").disabled=marked.size===0;
-  document.querySelectorAll("[data-bulk]").forEach(btn=>btn.disabled=readOnly||busy);
-  if(!rows.length){const empty=document.createElement("p");empty.textContent="No hay productos con estos filtros.";empty.className="empty-list";listEl.append(empty)}
+function render(){
+  const rows=filtered();
+  $("#count").textContent=rows.length+" de "+products.length+" artículos";
+  $("#items").replaceChildren(...rows.map(card));
+  $("#empty").hidden=rows.length>0;
+  $("#bulk").hidden=!selectionMode;
+  $("#bulkCount").textContent=selected.size+" "+(selected.size===1?"seleccionado":"seleccionados");
+  $("#selectionToggle").setAttribute("aria-pressed",String(selectionMode));
+  $("#selectionToggle").textContent=selectionMode?"Finalizar selección":"Seleccionar varios";
+  for(const btn of document.querySelectorAll("[data-bulk]"))btn.disabled=readOnly||busy||!selected.size;
 }
-function cleanupLocalImage(){if(localImageUrl){URL.revokeObjectURL(localImageUrl);localImageUrl=null}}
-function photoPreview(p){
-  const img=$("#preview"),empty=$("#imageEmpty");
-  img.hidden=true;empty.hidden=false;img.removeAttribute("src");
-  if(!p?.id)return;
-  img.onload=()=>{img.hidden=false;empty.hidden=true};
-  img.onerror=()=>{img.hidden=true;empty.hidden=false};
-  img.src=picture(p);
+function applyFilter(value){
+  searchFilter=value;
+  document.querySelectorAll("[data-filter]").forEach(b=>{const active=b.dataset.filter===value;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))});
+  render();
 }
+function revoke(){if(localURL){URL.revokeObjectURL(localURL);localURL=null}}
 function current(){return products.find(p=>p.id===currentId)||null}
-function choose(id,force=false){
-  if(dirty&&!force&&!confirm("Tenés cambios sin guardar. ¿Descartarlos?"))return;
-  cleanupLocalImage();dirty=false;currentId=id;
-  const p=current();const isNew=!p;
-  for(const key of fields){
-    const input=form.elements.namedItem(key);
-    if(!input)continue;
-    input.value=p?.[key]??"";
-  }
-  if(isNew){const highest=Math.max(0,...products.map(p=>Number(p.id.slice(3))||0));form.elements.namedItem("id").value="VG-"+String(highest+1).padStart(3,"0")}
-  form.elements.namedItem("publish").checked=p?.publish!==false;
-  form.elements.namedItem("availability").value=p?.availability||"Disponible";
-  form.elements.namedItem("order").value=p?.order||products.length+1;
-  $("#photo").value="";
-  $("#title").textContent=p?p.name:"Nuevo producto";
-  $("#subTitle").textContent=p?"Código "+p.id+" · Guardá para actualizar la tienda.":"Completá los datos y guardá antes de subir una foto.";
-  $("#deleteOne").disabled=readOnly||busy||isNew;
-  report("");
-  photoPreview(p);
-  preview();
-  list();
+function photoPreview(p){
+  const img=$("#preview"),fallback=$("#imageEmpty");
+  img.hidden=true;fallback.hidden=false;img.removeAttribute("src");
+  img.onload=()=>{img.hidden=false;fallback.hidden=true};
+  img.onerror=()=>{img.hidden=true;fallback.hidden=false};
+  if(localURL)img.src=localURL;
+  else if(p)img.src=photoURL(p);
 }
 function preview(){
-  const old=current(),get=k=>form.elements.namedItem(k)?.value||"";
-  $("#previewName").textContent=get("name")||"Nombre del producto";
+  const get=k=>form.elements.namedItem(k)?.value||"";
+  $("#previewName").textContent=get("name")||"Sin nombre";
   $("#previewMeta").textContent=[get("category"),get("brand"),get("size")&&"Talle "+get("size")].filter(Boolean).join(" · ");
   $("#previewPrice").textContent=money(get("price")===""?null:get("price"));
-  const state=get("availability");
-  const badge=$("#previewStatus");badge.textContent=state||"Disponible";badge.className="status-pill "+(state==="Vendido"?"sold":state==="Reservado"?"reserved":"");
-  const visible=form.elements.namedItem("publish").checked;
-  $("#previewVisibility").textContent=!visible?"Oculto: no aparece en la tienda":state==="Vendido"?"Vendido: no aparece por defecto en la tienda":"Visible en la tienda";
-  const disabled=readOnly||busy||!old;
-  for(const btn of ["#quickSold","#quickReserved","#quickAvailable"])$(btn).disabled=disabled;
+  const availability=get("availability");
+  const badge=$("#previewStatus");
+  badge.textContent=availability||"Disponible";
+  badge.className="status-pill"+(availability==="Vendido"?" sold":availability==="Reservado"?" reserved":"");
+  $("#previewVisibility").textContent=form.elements.namedItem("publish").checked?"En tienda":"Borrador oculto";
 }
-function draft(){
-  const original=current()||{},result={...original};
-  for(const key of fields){
-    const raw=form.elements.namedItem(key).value.trim();
-    result[key]=key==="price"?(raw===""?null:Number(raw)):key==="order"?(raw===""?products.length+1:Number(raw)):raw;
+function openEditor(id){
+  if(busy||readOnly)return;
+  if(dialog.open){if(!requestCloseEditor())return}
+  const p=products.find(v=>v.id===id);if(!p)return;
+  currentId=id;dirty=false;revoke();
+  for(const key of keys){
+    const input=form.elements.namedItem(key);if(input)input.value=p[key]??"";
   }
-  result.id=result.id.toUpperCase();
-  result.publish=form.elements.namedItem("publish").checked;
-  result.currency="ARS";result.image=result.image||null;
-  return result;
+  form.elements.namedItem("publish").checked=p.publish!==false;
+  $("#photo").value="";
+  $("#title").textContent="Editar producto";
+  $("#subTitle").textContent="Código "+p.id+" · Revisá y guardá tus cambios.";
+  $("#deleteOne").disabled=readOnly;
+  report("");photoPreview(p);preview();
+  dialog.showModal();
 }
-async function saveCatalog(next,returnTo,successMessage){
-  if(readOnly||busy)throw Error("No se pueden guardar cambios en este momento.");
-  busy=true;$("#save").disabled=true;list();preview();$("#deleteOne").disabled=true;
+function requestCloseEditor(){
+  if(busy){report("Esperá a que termine de guardar.");return false}
+  if(dirty&&!confirm("Tenés cambios sin guardar. ¿Descartarlos?"))return false;
+  dirty=false;revoke();dialog.close();currentId=null;return true;
+}
+function buildDraft(){
+  const original=current();if(!original)throw Error("No hay producto seleccionado");
+  const draft={...original};
+  for(const key of keys){
+    if(key==="id")continue;
+    const value=form.elements.namedItem(key).value.trim();
+    draft[key]=key==="price"?(value===""?null:Number(value)):key==="order"?(value===""?(original.order||1):Number(value)):value;
+  }
+  draft.publish=form.elements.namedItem("publish").checked;
+  draft.currency="ARS";
+  return draft;
+}
+async function jpegData(file){
+  let bitmap;
   try{
-    const result=await api("products",{method:"PUT",body:JSON.stringify({products:next,sha})});
-    products=next;sha=result.sha;marked.clear();
-    stats();dirty=false;choose(returnTo&&products.some(p=>p.id===returnTo)?returnTo:products[0]?.id||null,true);
-    const msg=successMessage||"Cambios guardados en GitHub. Cloudflare los publicará en unos instantes.";
-    report(msg);notice(msg);
-    return true;
-  }catch(error){report(error.message,true);notice(error.message,true);return false}
-  finally{busy=false;$("#save").disabled=readOnly;$("#deleteOne").disabled=readOnly||!current();list();preview()}
+    bitmap=await createImageBitmap(file);
+    const scale=Math.min(1,1500/Math.max(bitmap.width,bitmap.height));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+    canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+    canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);
+    let base=canvas.toDataURL("image/jpeg",.82);
+    if(base.length>2600000)base=canvas.toDataURL("image/jpeg",.67);
+    if(base.length>2800000)throw Error("La imagen supera 2 MB después de optimizarla.");
+    return base;
+  }finally{bitmap?.close()}
 }
-function ensureClean(){return !dirty||confirm("Tenés cambios sin guardar. ¿Descartarlos para continuar?")}
-async function quickChange(availability){
-  const p=current();if(!p||!ensureClean())return;
-  const next=products.map(x=>x.id===p.id?{...x,availability}:x);
-  report("Guardando estado…");await saveCatalog(next,p.id,"Estado actualizado a "+availability+". La tienda se actualizará en unos instantes.");
+async function photoReady(p){
+  try{
+    const response=await fetch(photoURL(p)+"?check="+Date.now(),{method:"HEAD",cache:"no-store"});
+    return response.ok&&/^image\//i.test(response.headers.get("content-type")||"");
+  }catch{return false}
+}
+async function saveCatalog(next,message){
+  if(readOnly||busy)throw Error("El catálogo no está disponible para edición.");
+  busy=true;render();$("#save").disabled=true;
+  try{
+    const result=await api("products",{method:"PUT",body:JSON.stringify({sha,products:next})});
+    products=next;sha=result.sha;stats();categories();render();notify(message||"Cambios guardados. La tienda se sincronizará en unos instantes.");
+    return true;
+  }catch(e){
+    if(e.message.includes("cambió")||e.message.includes("409"))notify("El catálogo se actualizó desde otro lugar. Recargá el panel antes de intentar otra vez.",true);
+    else notify("No se guardaron los cambios: "+e.message,true);
+    report(e.message,true);return false;
+  }finally{busy=false;$("#save").disabled=readOnly;render()}
+}
+async function submitEdit(event){
+  event.preventDefault();
+  if(busy||readOnly)return;
+  const p=current();if(!p)return;
+  const edited=buildDraft();
+  if(!edited.name||!edited.category||!Number.isFinite(edited.order)||edited.order<1){
+    report("Completá nombre, categoría y orden válido.",true);return;
+  }
+  if(edited.publish&&p.publish===false&&!(await photoReady(p))){
+    report("La fotografía aún no está publicada. Esperá a que aparezca antes de activar la ficha.",true);
+    form.elements.namedItem("publish").checked=false;preview();return;
+  }
+  const file=$("#photo").files?.[0]||null;
+  if(file&&!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)){
+    report("Elegí una fotografía válida.",true);return;
+  }
+  const next=products.map(x=>x.id===p.id?edited:x);
+  report("Guardando datos…");
+  const ok=await saveCatalog(next,"Datos guardados. Cloudflare actualizará la tienda.");
+  if(!ok)return;
+  dirty=false;
+  if(file){
+    report("Datos guardados. Enviando la fotografía…");
+    try{
+      const image=await jpegData(file);
+      await api("image",{method:"PUT",body:JSON.stringify({id:edited.id,data:image})});
+      report("Datos y foto enviados. La imagen se verá después del procesamiento y despliegue.");
+      notify("Datos y fotografía guardados. La foto nueva tardará unos minutos en aparecer en la tienda.");
+      $("#photo").value="";
+    }catch(e){
+      report("Datos guardados, pero no se subió la foto: "+e.message+" Volvé a guardar para reintentar.",true);
+      return;
+    }
+  }
+  revoke();dialog.close();currentId=null;render();
 }
 async function bulk(action){
-  const ids=[...marked];if(!ids.length||readOnly||busy||!ensureClean())return;
-  if(action==="delete"){
-    if(!confirm("¿Eliminar "+ids.length+" producto(s) del catálogo?\n\nSe quitarán del catálogo público y del administrador. Sus fotos permanecerán en GitHub como respaldo."))return;
-    const next=products.filter(p=>!marked.has(p.id));
-    await saveCatalog(next,marked.has(currentId)?next[0]?.id:currentId,"Productos eliminados del catálogo. Las fotos se conservaron en GitHub.");
-    return;
+  if(!selected.size||busy||readOnly)return;
+  const ids=new Set(selected);
+  if(action==="delete"&&!confirm("¿Eliminar "+ids.size+" productos del catálogo? Sus fotos se conservarán en GitHub."))return;
+  if(action==="show"){
+    const targets=products.filter(p=>ids.has(p.id)&&p.publish===false);
+    const missing=await Promise.all(targets.map(async p=>({name:p.name,ready:await photoReady(p)})));
+    if(missing.some(p=>!p.ready)){notify("Hay fotografías pendientes. No se publicaron: "+missing.filter(p=>!p.ready).map(p=>p.name).join(", "),true);return}
   }
-  const next=products.map(p=>{
-    if(!marked.has(p.id))return p;
-    if(action==="hide")return {...p,publish:false};
-    if(action==="show")return {...p,publish:true};
-    return {...p,availability:action};
-  });
-  const message=action==="hide"?"Productos ocultos":action==="show"?"Productos publicados":"Productos marcados como "+action.toLowerCase();
-  await saveCatalog(next,currentId,message+". Cloudflare actualizará la tienda en unos instantes.");
+  const next=action==="delete"?products.filter(p=>!ids.has(p.id)):
+    products.map(p=>!ids.has(p.id)?p:{
+      ...p,...(action==="show"?{publish:true}:action==="hide"?{publish:false}:{availability:action})
+    });
+  const message=action==="delete"?"Productos eliminados.":action==="hide"?"Productos ocultos.":action==="show"?"Productos publicados.":"Estado actualizado.";
+  if(await saveCatalog(next,message+" La tienda se sincronizará en unos instantes.")){
+    selected.clear();selectionMode=false;render();
+  }
 }
-async function load(){
+async function removeCurrent(){
+  const p=current();if(!p||busy||readOnly)return;
+  if(!confirm("¿Eliminar "+p.name+" ("+p.id+") del catálogo? La foto seguirá en GitHub."))return;
+  const next=products.filter(x=>x.id!==p.id);
+  if(await saveCatalog(next,"Producto eliminado. Su foto quedó como respaldo en GitHub.")){dirty=false;revoke();dialog.close();currentId=null}
+}
+async function reload(silent=false){
   try{
     const data=await api("products");
-    products=Array.isArray(data.products)?data.products:[];sha=data.sha||"";readOnly=Boolean(data.readOnly);
-    for(const key of ["#save","#upload","#new"])$(key).disabled=readOnly;
-    stats();choose(products[0]?.id||null,true);
-    if(readOnly)report("Modo lectura: falta configurar GITHUB_TOKEN en Cloudflare.",true);
-  }catch(error){report("No se pudo cargar el catálogo: "+error.message,true);notice("No se pudo cargar el catálogo: "+error.message,true)}
+    if(!Array.isArray(data.products))throw Error("Respuesta inesperada");
+    products=data.products;sha=data.sha||"";readOnly=!!data.readOnly;
+    stats();categories();render();
+    $("#new").disabled=readOnly;
+    if(readOnly)notify("El inventario está en modo lectura. Revisá la configuración de acceso.",true);
+  }catch(e){if(!silent)notify("No se pudo cargar el inventario: "+e.message,true)}
 }
-form.addEventListener("input",event=>{if(event.target.id==="photo")return;dirty=true;preview()});
-form.addEventListener("change",event=>{if(event.target.id==="photo")return;dirty=true;preview()});
-form.addEventListener("submit",async event=>{
-  event.preventDefault();if(readOnly||busy)return;
-  const product=draft(),id=product.id;
-  if(!/^VG-\d{3,5}$/.test(id)){report("Usá un código como VG-031.",true);return}
-  if(products.some(p=>p.id===id&&p.id!==currentId)){report("Ese código ya existe.",true);return}
-  if(!Number.isInteger(product.order)||product.order<1){report("El orden debe ser un número entero positivo.",true);return}
-  const next=products.filter(p=>p.id!==currentId);next.push(product);
-  report("Guardando producto…");await saveCatalog(next,id,"Producto guardado. Cloudflare lo publicará en unos instantes.");
-});
-$("#new").addEventListener("click",()=>choose(null));
-$("#search").addEventListener("input",list);
-$("#statusFilter").addEventListener("change",list);
-$("#selectAll").addEventListener("change",event=>{
-  const ids=filtered().map(p=>p.id);
-  for(const id of ids){if(event.target.checked)marked.add(id);else marked.delete(id)}list();
-});
-$("#clearSelection").addEventListener("click",()=>{marked.clear();list()});
-document.querySelectorAll("[data-bulk]").forEach(btn=>btn.addEventListener("click",()=>bulk(btn.dataset.bulk)));
-$("#quickSold").addEventListener("click",()=>quickChange("Vendido"));
-$("#quickReserved").addEventListener("click",()=>quickChange("Reservado"));
-$("#quickAvailable").addEventListener("click",()=>quickChange("Disponible"));
-$("#deleteOne").addEventListener("click",()=>{
-  const p=current();if(!p||readOnly||busy||!ensureClean())return;
-  if(confirm("¿Eliminar "+p.name+" ("+p.id+") del catálogo?\n\nEsta acción quita la ficha. La foto seguirá guardada en GitHub.")){
-    saveCatalog(products.filter(x=>x.id!==p.id),null,"Producto quitado del catálogo; foto conservada.");
-  }
-});
-$("#photo").addEventListener("change",event=>{
-  cleanupLocalImage();
-  const file=event.target.files?.[0];if(!file){photoPreview(current());return}
-  localImageUrl=URL.createObjectURL(file);const img=$("#preview");
-  img.src=localImageUrl;img.hidden=false;$("#imageEmpty").hidden=true;
-  img.onerror=()=>{img.hidden=true;$("#imageEmpty").hidden=false};
-});
-$("#upload").addEventListener("click",async()=>{
-  if(readOnly||busy)return;const product=current(),file=$("#photo").files?.[0];
-  if(!product){report("Guardá el producto antes de subir la fotografía.",true);return}
-  if(dirty){report("Guardá primero los cambios del formulario.",true);return}
-  if(!file){report("Seleccioná una foto antes de subirla.",true);return}
-  report("Preparando fotografía…");
+function showAdd(){
+  if(readOnly||busy)return;
+  if(!frame.src)frame.src=frame.dataset.src;
+  addDialog.showModal();
+}
+function closeAdd(){
   try{
-    const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
-    const canvas=document.createElement("canvas");canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
-    canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
-    const data=canvas.toDataURL("image/jpeg",.82);
-    if(data.length>2800000)throw Error("La foto supera 2 MB optimizada.");
-    await api("image",{method:"PUT",body:JSON.stringify({id:product.id,data})});
-    report("Foto enviada. GitHub la optimizará y Cloudflare la publicará.");
-    notice("Fotografía enviada. Puede tardar unos instantes en aparecer en la tienda.");
-  }catch(error){report("Error al subir: "+error.message,true)}
+    const win=frame.contentWindow;
+    if(win?.hasUnsavedProductDrafts?.()&&!confirm("Tenés fichas sin guardar en la carga. ¿Salir y descartarlas?"))return;
+  }catch{}
+  addDialog.close();
+  // Recargar la lista también cuando el usuario cerró sin recibir el mensaje de publicación.
+  reload(true);
+}
+form.addEventListener("input",e=>{if(e.target.id==="photo")return;dirty=true;preview()});
+form.addEventListener("change",e=>{if(e.target.id==="photo")return;dirty=true;preview()});
+form.addEventListener("submit",submitEdit);
+$("#photo").addEventListener("change",e=>{
+  revoke();const file=e.target.files?.[0];
+  if(file){localURL=URL.createObjectURL(file);photoPreview(current());dirty=true;report("Foto seleccionada. Se enviará al guardar.");}
+  else photoPreview(current());
 });
-window.addEventListener("beforeunload",event=>{if(dirty){event.preventDefault();event.returnValue=""}});
-load();
+$("#closeEditor").addEventListener("click",requestCloseEditor);
+$("#cancelEditor").addEventListener("click",requestCloseEditor);
+dialog.addEventListener("cancel",e=>{e.preventDefault();requestCloseEditor()});
+dialog.addEventListener("click",e=>{if(e.target===dialog)requestCloseEditor()});
+$("#deleteOne").addEventListener("click",removeCurrent);
+$("#search").addEventListener("input",render);
+$("#categoryFilter").addEventListener("change",e=>{categoryFilter=e.target.value;render()});
+document.querySelectorAll("[data-filter]").forEach(btn=>btn.addEventListener("click",()=>applyFilter(btn.dataset.filter)));
+$("#selectionToggle").addEventListener("click",()=>{
+  selectionMode=!selectionMode;selected.clear();render();
+});
+$("#clearSelection").addEventListener("click",()=>{selectionMode=false;selected.clear();render()});
+$("#selectAll").addEventListener("click",()=>{for(const p of filtered())selected.add(p.id);render()});
+document.querySelectorAll("[data-bulk]").forEach(btn=>btn.addEventListener("click",()=>bulk(btn.dataset.bulk)));
+$("#resetFilters").addEventListener("click",()=>{
+  $("#search").value="";$("#categoryFilter").value="Todas";categoryFilter="Todas";applyFilter("Todos");
+});
+$("#new").addEventListener("click",showAdd);
+$("#closeAdd").addEventListener("click",closeAdd);
+addDialog.addEventListener("cancel",e=>{e.preventDefault();closeAdd()});
+window.addEventListener("message",e=>{
+  if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=="garage-sale:batch-saved")return;
+  reload(true);
+  const count=Number(e.data.count)||0;
+  notify(count+" "+(count===1?"producto guardado":"productos guardados")+" como borrador. Podés revisarlos aquí al cerrar la carga.");
+});
+window.addEventListener("beforeunload",e=>{if(dialog.open&&dirty){e.preventDefault();e.returnValue=""}});
+reload();
