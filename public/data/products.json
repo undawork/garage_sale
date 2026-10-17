@@ -317,7 +317,7 @@
     "price": 90000,
     "currency": "ARS",
     "availability": "Disponible",
-    "publish": false,
+    "publish": true,
     "image": "/products/VG-035.webp",
     "description": "",
     "order": 35
