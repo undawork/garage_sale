@@ -168,3 +168,13 @@ select{min-width:160px}
   .filter-toggle-row{padding-top:10px}
   .filter-toggle{width:100%}
 }
+
+/* Catálogo: mostrar vendidos solamente cuando el visitante lo elige */
+.sold-toggle{display:flex;align-items:center;gap:9px;color:var(--text);font-size:.85rem;font-weight:650;cursor:pointer;white-space:nowrap}
+.sold-toggle input{accent-color:#315543;width:17px;height:17px}
+.sold-card{opacity:.76}
+.sold-card .image-wrap img{filter:grayscale(.35)}
+.sold-badge{background:#6d4940}
+.sold-card .price{color:var(--muted)}
+.sold-card .cta.disabled{opacity:1;color:#fff;background:#797873;cursor:default}
+@media(max-width:560px){.result-row{gap:9px;flex-wrap:wrap}.sold-toggle{width:100%;font-size:.82rem}}
