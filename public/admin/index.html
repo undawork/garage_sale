@@ -2,101 +2,119 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#f5f2eb">
-  <title>Inventario · Venta de Garage</title>
+  <meta name="theme-color" content="#f8f8f6">
+  <title>Administrar tienda · Venta de Garage</title>
   <link rel="stylesheet" href="/admin/admin.css">
 </head>
 <body>
-  <header class="topbar">
-    <div><span class="eyebrow">VENTA DE GARAGE / ADMIN</span><h1>Mi inventario</h1><p>Actualizá productos, fotos y disponibilidad desde un solo lugar.</p></div>
-    <div class="top-actions"><a class="btn primary" href="/admin/alta/">+ Carga rápida</a><a class="shop-link" href="/" target="_blank" rel="noopener">Ver tienda <span aria-hidden="true">↗</span></a></div>
+  <div class="admin-ribbon"><span>VISTA PRIVADA · MODO ADMINISTRACIÓN</span><a href="/" target="_blank" rel="noopener">Abrir tienda pública ↗</a></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="wordmark" href="/admin/">Venta de Garage<span>.</span></a>
+      <nav aria-label="Secciones del administrador" class="nav-links">
+        <a href="#productos" class="active">Mis productos</a>
+        <a href="#guia">Cómo funciona</a>
+      </nav>
+      <div class="header-actions">
+        <span class="admin-mark"><span class="admin-mark-dot"></span> Administrando</span>
+        <button id="new" type="button" class="btn primary">+ Agregar productos</button>
+      </div>
+    </div>
   </header>
-  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
-  <section class="stats" aria-label="Resumen de inventario">
-    <div class="stat"><span>Productos</span><strong id="stat-total">—</strong></div>
-    <div class="stat"><span>Disponibles</span><strong id="stat-available">—</strong></div>
-    <div class="stat"><span>Reservados</span><strong id="stat-reserved">—</strong></div>
-    <div class="stat"><span>Vendidos</span><strong id="stat-sold">—</strong></div>
-    <div class="stat"><span>Ocultos</span><strong id="stat-hidden">—</strong></div>
-  </section>
-  <main class="workspace">
-    <aside class="inventory" aria-label="Listado de productos">
-      <div class="section-title"><div><h2>Productos</h2><p id="count">Cargando…</p></div><button type="button" id="new" class="btn primary">+ Nuevo</button></div>
-      <div class="filters">
-        <label class="sr-only" for="search">Buscar por nombre o ID</label>
-        <input id="search" type="search" placeholder="Buscar por nombre o código…">
-        <label class="sr-only" for="statusFilter">Filtrar por estado</label>
-        <select id="statusFilter"><option value="Todos">Todos los estados</option><option value="Disponible">Disponibles</option><option value="Reservado">Reservados</option><option value="Vendido">Vendidos</option><option value="Oculto">Ocultos</option></select>
-      </div>
-      <div class="selection-line">
-        <label class="select-all"><input type="checkbox" id="selectAll"> Seleccionar visibles</label>
-        <button type="button" id="clearSelection" class="text-btn">Limpiar selección</button>
-      </div>
-      <div id="bulk" class="bulk" hidden>
-        <strong id="bulkCount">0 seleccionados</strong>
-        <div class="bulk-actions">
-          <button type="button" data-bulk="Vendido">Vendido</button>
-          <button type="button" data-bulk="Reservado">Reservado</button>
-          <button type="button" data-bulk="Disponible">Disponible</button>
-          <button type="button" data-bulk="hide">Ocultar</button>
-          <button type="button" data-bulk="show">Publicar</button>
-          <button type="button" data-bulk="delete" class="danger">Eliminar</button>
+
+  <main class="main-wrap" id="productos">
+    <section class="heading">
+      <div><span class="eyebrow">TU TIENDA · PANEL PRIVADO</span><h1>Todo tu inventario,<br><em>en un solo lugar.</em></h1><p>Gestioná tu catálogo con la misma vista que usan tus compradores. Tocá cualquier artículo para editarlo.</p></div>
+      <div class="heading-actions"><a class="btn secondary" href="/" target="_blank" rel="noopener">Ver tienda ↗</a></div>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section class="overview" aria-label="Resumen del inventario">
+      <div class="overview-item"><span>En total</span><strong id="stat-total">—</strong></div>
+      <div class="overview-item"><span>Publicados</span><strong id="stat-available">—</strong></div>
+      <div class="overview-item"><span>Reservados</span><strong id="stat-reserved">—</strong></div>
+      <div class="overview-item"><span>Vendidos</span><strong id="stat-sold">—</strong></div>
+      <div class="overview-item"><span>Borradores</span><strong id="stat-hidden">—</strong></div>
+    </section>
+    <section class="catalog">
+      <div class="section-title"><div><span class="eyebrow">CATÁLOGO</span><h2>Tus productos</h2></div><span id="count" class="count">Cargando artículos…</span></div>
+      <div class="catalog-controls">
+        <label class="search-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+          <input id="search" type="search" placeholder="Buscar por nombre, marca o código…" aria-label="Buscar productos" autocomplete="off">
+        </label>
+        <div class="filter-tabs" id="statusTabs" role="group" aria-label="Filtrar por disponibilidad">
+          <button class="tab active" type="button" data-filter="Todos" aria-pressed="true">Todos</button>
+          <button class="tab" type="button" data-filter="Disponible" aria-pressed="false">Disponibles</button>
+          <button class="tab" type="button" data-filter="Reservado" aria-pressed="false">Reservados</button>
+          <button class="tab" type="button" data-filter="Vendido" aria-pressed="false">Vendidos</button>
+          <button class="tab" type="button" data-filter="Oculto" aria-pressed="false">Borradores</button>
+        </div>
+        <div class="catalog-extra">
+          <label class="sr-only" for="categoryFilter">Categoría</label>
+          <select id="categoryFilter" aria-label="Categoría"><option value="Todas">Todas las categorías</option></select>
+          <button type="button" id="selectionToggle" class="btn subtle" aria-pressed="false">Seleccionar varios</button>
         </div>
       </div>
-      <div id="items" class="items" aria-label="Productos"></div>
-    </aside>
-    <section class="editor" aria-label="Editar producto">
-      <form id="form">
-        <div class="editor-head"><div><span class="eyebrow">EDITOR DE PRODUCTO</span><h2 id="title">Seleccioná un producto</h2><p id="subTitle">Los cambios se publican automáticamente al guardarlos.</p></div><button type="submit" id="save" class="btn primary">Guardar cambios</button></div>
-        <p id="status" role="status" aria-live="polite"></p>
-        <section class="preview-layout" aria-label="Vista previa en la tienda">
-          <div class="image-stage">
-            <img id="preview" alt="Foto del producto" hidden>
-            <div id="imageEmpty" class="image-empty" hidden><strong>Sin fotografía</strong><span>Subí una para mostrarla en la tienda.</span></div>
-          </div>
-          <div class="preview-details">
-            <span class="eyebrow">VISTA PREVIA</span>
-            <span id="previewStatus" class="status-pill">Disponible</span>
-            <h3 id="previewName">Elegí un producto</h3>
-            <p id="previewMeta"></p>
-            <div class="preview-price" id="previewPrice">—</div>
-            <p id="previewVisibility" class="visibility"></p>
-            <div class="quick-actions">
-              <button type="button" id="quickSold">Marcar vendido</button>
-              <button type="button" id="quickReserved">Reservar</button>
-              <button type="button" id="quickAvailable">Disponible</button>
-            </div>
-            <p class="hint">Estos botones guardan el estado en GitHub y actualizan la tienda. Si hay cambios sin guardar, guardalos primero.</p>
-          </div>
-        </section>
-        <div class="editor-section"><div class="section-title"><div><h3>Información</h3><p>Editá los datos del producto.</p></div></div>
+      <div id="bulk" class="bulk-bar" hidden>
+        <div><strong id="bulkCount">0 seleccionados</strong><button id="selectAll" type="button" class="text-button">Seleccionar todos los visibles</button></div>
+        <div class="bulk-actions">
+          <button type="button" data-bulk="Disponible">Disponible</button>
+          <button type="button" data-bulk="Reservado">Reservar</button>
+          <button type="button" data-bulk="Vendido">Vendido</button>
+          <button type="button" data-bulk="show">Publicar</button>
+          <button type="button" data-bulk="hide">Ocultar</button>
+          <button type="button" data-bulk="delete" class="danger-link">Eliminar</button>
+          <button type="button" id="clearSelection" class="text-button">Cancelar</button>
+        </div>
+      </div>
+      <div id="items" class="product-grid" aria-label="Productos de la tienda" aria-live="polite"></div>
+      <div id="empty" class="empty-grid" hidden><span aria-hidden="true">◇</span><h3>No encontramos productos</h3><p>Probá otra búsqueda o elegí un filtro diferente.</p><button id="resetFilters" type="button" class="btn secondary">Ver todo</button></div>
+    </section>
+    <section class="help-strip" id="guia"><div><span class="eyebrow">ASÍ DE SIMPLE</span><h2>Tu tienda, bajo control.</h2><p>Agregá fotos y productos desde «Agregar productos». Primero quedan guardados como borrador. Después, cuando revises sus fotos, los publicás desde cada ficha.</p></div><a href="/" target="_blank" rel="noopener" class="btn secondary">Ir a la tienda ↗</a></section>
+  </main>
+  <footer class="footer"><div class="footer-inner"><a class="wordmark" href="/">Venta de Garage<span>.</span></a><p>Panel privado · Los cambios se sincronizan con GitHub y Cloudflare.</p></div></footer>
+
+  <dialog id="editDialog" class="edit-dialog" aria-labelledby="title">
+    <div class="dialog-top"><div><span class="eyebrow">ADMINISTRAR PRODUCTO</span><h2 id="title">Editar producto</h2><p id="subTitle">Los cambios se guardan al confirmar.</p></div><button type="button" id="closeEditor" class="close-button" aria-label="Cerrar editor">×</button></div>
+    <form id="form" class="editor-form">
+      <p id="status" role="status" aria-live="polite" class="editor-status"></p>
+      <div class="editor-columns">
+        <div class="editor-photo">
+          <div class="image-stage"><img id="preview" alt="Foto del producto" hidden><div id="imageEmpty" class="image-empty" hidden><span>◇</span><strong>Foto pendiente</strong><small>El producto aún no tiene una fotografía publicada.</small></div></div>
+          <label class="photo-upload">Reemplazar fotografía<input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"></label>
+          <p class="hint">Si elegís otra foto, se subirá al guardar. La optimización puede tardar unos minutos. Todavía no se elimina el fondo automáticamente.</p>
+        </div>
+        <div class="editor-fields">
+          <div class="editor-product-head"><span id="previewStatus" class="status-pill">Disponible</span><span id="previewVisibility" class="visibility"></span></div>
+          <h3 id="previewName">Nombre del producto</h3>
+          <p id="previewMeta" class="editor-meta"></p>
+          <strong id="previewPrice" class="editor-price">—</strong>
           <div class="fields">
-            <label>ID del producto<input name="id" required pattern="VG-[0-9]{3,5}" placeholder="VG-031"></label>
-            <label>Nombre<input name="name" required maxlength="160"></label>
+            <label class="wide">Nombre<input name="name" required maxlength="160"></label>
             <label>Categoría<input name="category" required></label>
             <label>Tipo<input name="type"></label>
+            <label>Precio (ARS)<input name="price" type="number" min="0" step="1" placeholder="Consultar"></label>
             <label>Marca<input name="brand"></label>
             <label>Talle<input name="size"></label>
             <label>Color<input name="color"></label>
             <label>Condición<input name="condition"></label>
-            <label>Precio (ARS)<input name="price" type="number" min="0" step="1" placeholder="Consultar"></label>
             <label>Disponibilidad<select name="availability"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></label>
-            <label>Orden<input name="order" type="number" min="1" step="1"></label>
-            <label class="publish"><input name="publish" type="checkbox" checked> Visible en la tienda</label>
-            <label class="wide">Descripción<textarea name="description" rows="3" placeholder="Detalle de la prenda, medidas…"></textarea></label>
+            <label class="publish wide"><input name="publish" type="checkbox"> Visible en la tienda pública</label>
+            <label class="wide">Descripción<textarea name="description" rows="3" placeholder="Estado real, medidas, detalles…"></textarea></label>
           </div>
+          <details class="advanced"><summary>Detalles adicionales</summary><div class="fields"><label>Código<input name="id" readonly></label><label>Orden<input name="order" type="number" min="1" step="1"></label></div></details>
         </div>
-        <section class="editor-section photo">
-          <div class="section-title"><div><h3>Fotografía principal</h3><p>La imagen se verá en la vista previa de arriba.</p></div></div>
-          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" aria-label="Elegir fotografía">
-          <div class="photo-controls"><button type="button" id="upload" class="btn secondary">Subir foto a la tienda</button><small>Guardá primero los productos nuevos. Las fotos tardan unos instantes en optimizarse y publicarse.</small></div>
-        </section>
-        <div class="danger-zone"><div><strong>Quitar del catálogo</strong><p>Elimina este producto del listado; conserva su foto en GitHub como respaldo.</p></div><button type="button" id="deleteOne" class="btn danger">Eliminar producto</button></div>
-      </form>
-    </section>
-  </main>
+      </div>
+      <div class="editor-bottom"><button type="button" id="deleteOne" class="text-button danger-text">Eliminar producto</button><div class="editor-save"><button type="button" id="cancelEditor" class="btn secondary">Cancelar</button><button type="submit" id="save" class="btn primary">Guardar cambios</button></div></div>
+    </form>
+  </dialog>
+
+  <dialog id="addDialog" class="add-dialog" aria-label="Agregar uno o varios productos">
+    <div class="add-dialog-top"><div><span class="eyebrow">ALTA DE PRODUCTOS</span><h2>Agregar a la tienda</h2><p>Una foto o varias, en el mismo lugar. Las nuevas fichas se guardan como borradores.</p></div><button type="button" id="closeAdd" class="close-button" aria-label="Cerrar carga de productos">×</button></div>
+    <iframe id="addFrame" title="Carga de uno o varios productos" data-src="/admin/alta/?integrado=1" loading="lazy"></iframe>
+  </dialog>
   <script src="/admin/admin.js" defer></script>
 </body>
 </html>
