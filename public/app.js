@@ -8,7 +8,8 @@ const state = {
   condition: "Todo",
   color: "Todo",
   search: "",
-  sort: "order"
+  sort: "order",
+  showSold: false
 };
 
 const els = {
@@ -26,10 +27,13 @@ const els = {
   filterToggle: document.querySelector("#filterToggle"),
   filterPanel: document.querySelector("#filterPanel"),
   count: document.querySelector("#resultCount"),
+  showSold: document.querySelector("#showSold"),
 };
 
 const normalize = (value = "") =>
   String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+const escapeHtml = value => String(value ?? "").replace(/[&<>"\x27]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","\x27":"&#39;"}[ch]));
 
 const money = (value, currency = config.currency || "ARS") =>
   new Intl.NumberFormat(config.locale || "es-AR", {
@@ -56,17 +60,14 @@ function whatsappUrl(product) {
 function uniqueValues(key) {
   return [...new Set(
     state.products
-      .filter(p => p.publish !== false && p.availability !== "Vendido")
+      .filter(p => p.publish !== false && (state.showSold || p.availability !== "Vendido"))
       .map(p => p[key])
       .filter(Boolean)
   )].sort((a, b) => String(a).localeCompare(String(b), "es", { numeric: true }));
 }
 
 function setOptions(select, label, values) {
-  select.innerHTML = [
-    `<option value="Todo">${label}</option>`,
-    ...values.map(value => `<option value="${value}">${value}</option>`)
-  ].join("");
+  select.replaceChildren(new Option(label, "Todo"), ...values.map(value => new Option(String(value), String(value))));
 }
 
 function renderFilterOptions() {
@@ -78,14 +79,19 @@ function renderFilterOptions() {
 }
 
 function renderCategories() {
-  const cats = ["Todo", ...new Set(state.products.map(p => p.category).filter(Boolean))];
-  els.categories.innerHTML = cats.map(cat =>
-    `<button class="chip ${cat === state.category ? "active" : ""}" data-category="${cat}">${cat}</button>`
-  ).join("");
+  const cats = ["Todo", ...new Set(state.products.filter(p => p.publish !== false && (state.showSold || p.availability !== "Vendido")).map(p => p.category).filter(Boolean))];
+  els.categories.replaceChildren(...cats.map(cat => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chip" + (cat === state.category ? " active" : "");
+    button.dataset.category = cat;
+    button.textContent = cat;
+    return button;
+  }));
 }
 
 function visibleProducts() {
-  let items = state.products.filter(p => p.publish !== false && p.availability !== "Vendido");
+  let items = state.products.filter(p => p.publish !== false && (state.showSold || p.availability !== "Vendido"));
 
   if (state.category !== "Todo") items = items.filter(p => p.category === state.category);
   if (state.type !== "Todo") items = items.filter(p => p.type === state.type);
@@ -102,6 +108,7 @@ function visibleProducts() {
   }
 
   items.sort((a, b) => {
+    if ((a.availability === "Vendido") !== (b.availability === "Vendido")) return a.availability === "Vendido" ? 1 : -1;
     if (state.sort === "price-asc") return Number(a.price ?? Infinity) - Number(b.price ?? Infinity);
     if (state.sort === "price-desc") return Number(b.price ?? -Infinity) - Number(a.price ?? -Infinity);
     if (state.sort === "name") return String(a.name).localeCompare(String(b.name), "es");
@@ -112,32 +119,34 @@ function visibleProducts() {
 }
 
 function card(product) {
-  const href = whatsappUrl(product);
+  const sold = product.availability === "Vendido";
+  const href = sold ? "" : whatsappUrl(product);
   const attrs = [
     product.brand ? { value: product.brand, className: "" } : null,
     product.size ? { value: `Talle ${product.size}`, className: "" } : null,
     product.color ? { value: product.color, className: "" } : null,
     product.condition ? { value: product.condition, className: "condition" } : null,
   ].filter(Boolean);
-  const image = productImage(product);
+  const originalImage = productImage(product);
+  const image = /^\/products\/VG-\d{3,5}\.webp$/.test(originalImage) ? originalImage : "";
 
-  return `<article class="card">
+  return `<article class="card ${sold ? "sold-card" : ""}">
     <div class="image-wrap">
       <div class="image-placeholder" aria-hidden="true">
-        <span>${product.id || ""}</span>
+        <span>${escapeHtml(product.id || "")}</span>
         <strong>Foto próximamente</strong>
       </div>
-      ${image ? `<img src="${image}" alt="${product.name}" loading="lazy" decoding="async">` : ""}
-      ${product.availability === "Reservado" ? '<span class="badge">Reservado</span>' : ""}
+      ${image ? `<img src="${image}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async">` : ""}
+      ${sold ? '<span class="badge sold-badge">Vendido</span>' : product.availability === "Reservado" ? '<span class="badge">Reservado</span>' : ""}
     </div>
     <div class="card-body">
-      <div class="meta">${[product.category, product.type].filter(Boolean).join(" · ")}</div>
-      <h2>${product.name}</h2>
-      ${product.description ? `<p class="description">${product.description}</p>` : ""}
-      <div class="attrs">${attrs.map(a => `<span class="attr ${a.className}">${a.value}</span>`).join("")}</div>
+      <div class="meta">${escapeHtml([product.category, product.type].filter(Boolean).join(" · "))}</div>
+      <h2>${escapeHtml(product.name)}</h2>
+      ${product.description ? `<p class="description">${escapeHtml(product.description)}</p>` : ""}
+      <div class="attrs">${attrs.map(a => `<span class="attr ${a.className}">${escapeHtml(a.value)}</span>`).join("")}</div>
       <div class="bottom">
         <div class="price">${priceLabel(product)}</div>
-        <a class="cta ${href ? "" : "disabled"}" href="${href || "#"}" target="_blank" rel="noopener">Me interesa</a>
+        ${sold ? '<span class="cta disabled" aria-label="Producto vendido">Vendido</span>' : `<a class="cta ${href ? "" : "disabled"}" href="${escapeHtml(href || "#")}" target="_blank" rel="noopener">Me interesa</a>`}
       </div>
     </div>
   </article>`;
@@ -156,7 +165,8 @@ function hasActiveFilters() {
 
 function render() {
   const items = visibleProducts();
-  els.count.textContent = `${items.length} ${items.length === 1 ? "producto" : "productos"}`;
+  const sold = state.products.filter(p => p.publish !== false && p.availability === "Vendido").length;
+  els.count.textContent = `${items.length} ${items.length === 1 ? "producto" : "productos"}${!state.showSold && sold ? " · " + sold + " vendidos ocultos" : ""}`;
   els.grid.innerHTML = items.map(card).join("");
   els.empty.hidden = items.length !== 0;
   els.clear.disabled = !hasActiveFilters();
@@ -173,6 +183,7 @@ els.categories.addEventListener("click", e => {
 
 els.search.addEventListener("input", e => { state.search = e.target.value; render(); });
 els.sort.addEventListener("change", e => { state.sort = e.target.value; render(); });
+els.showSold.addEventListener("change", e => { state.showSold = e.target.checked; renderFilterOptions(); render(); });
 
 [
   ["type", els.type],
