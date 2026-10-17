@@ -1,7 +1,14 @@
 {
   "name": "garage-sale",
   "compatibility_date": "2026-10-04",
+  "main": "src/worker.js",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/admin",
+      "/admin/*",
+      "/api/admin/*"
+    ]
   }
 }
