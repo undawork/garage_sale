@@ -190,11 +190,11 @@ async function submitEdit(event){
   if(!edited.name||!edited.category||!Number.isFinite(edited.order)||edited.order<1){
     report("Completá nombre, categoría y orden válido.",true);return;
   }
-  if(edited.publish&&p.publish===false&&!(await photoReady(p))){
-    report("La fotografía aún no está publicada. Esperá a que aparezca antes de activar la ficha.",true);
+  const file=$("#photo").files?.[0]||null;
+  if(edited.publish&&p.publish===false&&(file||!(await photoReady(p)))){
+    report("Primero esperá a que la fotografía esté publicada. Después podrás activar la ficha.",true);
     form.elements.namedItem("publish").checked=false;preview();return;
   }
-  const file=$("#photo").files?.[0]||null;
   if(file&&!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)){
     report("Elegí una fotografía válida.",true);return;
   }
@@ -204,6 +204,7 @@ async function submitEdit(event){
   if(!ok)return;
   dirty=false;
   if(file){
+    busy=true;$("#save").disabled=true;render();
     report("Datos guardados. Enviando la fotografía…");
     try{
       const image=await jpegData(file);
@@ -214,7 +215,7 @@ async function submitEdit(event){
     }catch(e){
       report("Datos guardados, pero no se subió la foto: "+e.message+" Volvé a guardar para reintentar.",true);
       return;
-    }
+    }finally{busy=false;$("#save").disabled=readOnly;render()}
   }
   revoke();dialog.close();currentId=null;render();
 }
