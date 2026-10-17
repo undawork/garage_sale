@@ -154,8 +154,9 @@ function createProductCard(product) {
   const label=sold?"Vendido":product.availability==="Reservado"?"Reservado":product.condition==="Nuevo con Etiqueta"?"Con etiqueta":"Disponible";
   const badge=createElement("span","product-tag"+(sold?" sold":product.availability==="Reservado"?" reserved":""),label);
   photo.append(badge);
-  const quick=createElement("button","product-quick","Ver detalles ↗");
-  quick.type="button";quick.dataset.product=product.id;quick.setAttribute("aria-label","Ver detalles de "+product.name);
+  // Texto visual; la única acción interactiva es el botón que cubre la tarjeta.
+  const quick=createElement("span","product-quick","Ver detalles ↗");
+  quick.setAttribute("aria-hidden","true");
   photo.append(quick);
   const body=createElement("div","product-content");
   body.append(createElement("span","product-category",[product.category,product.type].filter(Boolean).join(" · ")));
@@ -163,9 +164,16 @@ function createProductCard(product) {
   body.append(createElement("p","product-subtitle",[product.brand,product.size?"Talle "+product.size:null].filter(Boolean).join(" · ")||""));
   const bottom=createElement("div","product-bottom");
   bottom.append(createElement("strong","product-price",priceLabel(product)));
-  const details=createElement("button","product-view","↗");
-  details.type="button";details.dataset.product=product.id;details.setAttribute("aria-label","Ver "+product.name);
+  const details=createElement("span","product-view","↗");
+  details.setAttribute("aria-hidden","true");
   bottom.append(details);body.append(bottom);card.append(photo,body);
+  // Un único botón nativo con área clickeable completa: foto, título, precio
+  // y espacios vacíos; soporta mouse, táctil, Enter y Espacio.
+  const open=createElement("button","product-open");
+  open.type="button";
+  open.dataset.product=product.id;
+  open.setAttribute("aria-label","Ver detalles de "+product.name);
+  card.append(open);
   return card;
 }
 function renderActiveFilters() {
