@@ -508,5 +508,22 @@
     "image": null,
     "description": "Corte slim",
     "order": 1
+  },
+  {
+    "id": "VG-031",
+    "name": "Hoodie Jordan Azul Talle XL",
+    "category": "Ropa",
+    "type": "Buzo",
+    "brand": "Jordan",
+    "size": "XL",
+    "color": "",
+    "condition": "Excelente",
+    "price": 100000,
+    "currency": "ARS",
+    "availability": "Disponible",
+    "publish": true,
+    "image": "/products/VG-031.webp",
+    "description": "",
+    "order": 31
   }
 ]
