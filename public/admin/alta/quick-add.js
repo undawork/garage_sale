@@ -1,4 +1,5 @@
 "use strict";
+if(new URL(location.href).searchParams.get("integrado")==="1")document.body.classList.add("embedded");
 
 /* Una imagen equivale a un producto. La separación de objetos en una sola foto
    y el borrado inteligente de fondo requieren un servicio de IA adicional. */
