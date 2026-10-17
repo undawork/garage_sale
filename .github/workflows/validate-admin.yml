@@ -20,8 +20,11 @@ jobs:
         run: |
           node --check src/worker.js
           node --check public/admin/admin.js
+          node --check public/admin/image-tools.js
           node --check public/admin/alta/quick-add.js
           node --check public/app.js
+      - name: Test photo rotation
+        run: node scripts/test-image-rotation.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Validate catalog
