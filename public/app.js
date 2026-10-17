@@ -11,7 +11,7 @@ const elements = {
   condition: $("#conditionFilter"), color: $("#colorFilter"),
   showSold: $("#showSold"), activeFilters: $("#activeFilters"),
   count: $("#resultCount"), catalogTitle: $("#catalogTitle"),
-  heroCount: $("#heroCount"), heroMain: $("#heroMainImage"), heroSide: $("#heroSideImage"),
+  heroCount: $("#heroCount"),
   dialog: $("#productDialog")
 };
 const state = {
@@ -42,7 +42,7 @@ const whatsAppLink = (product = null) => {
 function configureContactLinks() {
   const href = whatsAppLink();
   if (!href) return;
-  for (const id of ["navContact","footerContact","floatingContact"]) {
+  for (const id of ["navContact","footerContact","floatingContact","announcementContact"]) {
     const el = $("#"+id);
     el.href = href;el.target = "_blank";el.rel = "noopener noreferrer";
   }
@@ -88,41 +88,41 @@ function createElement(tag,className,text) {
   if (text!==undefined) el.textContent=String(text);
   return el;
 }
+const editorialImages = {
+  "Ropa": "https://images.unsplash.com/photo-1601926299866-6a5c9bfa6be0?auto=format&fit=crop&w=900&q=76",
+  "Libros": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=76",
+  "Accesorios": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=76"
+};
 function renderCategories() {
-  const groups=categoryCounts();
-  const entries=[...groups.entries()].sort(([a],[b]) => {
-    const order=["Ropa","Libros","Accesorios"];
-    const ai=order.indexOf(a),bi=order.indexOf(b);
+  const groups = categoryCounts();
+  const priority = ["Ropa","Libros","Accesorios"];
+  const entries = [...groups.entries()].sort(([a],[b]) => {
+    const ai=priority.indexOf(a),bi=priority.indexOf(b);
     return (ai===-1?100:ai)-(bi===-1?100:bi) || a.localeCompare(b,"es");
   });
-  const tabAll=createElement("button","category-tab"+(state.category==="Todo"?" active":""),"Ver todo");
-  tabAll.type="button";tabAll.dataset.category="Todo";tabAll.setAttribute("aria-pressed",String(state.category==="Todo"));
-  tabAll.append(createElement("span","",visiblePool().length));
-  const tabs=[tabAll];
-  const cards=[];
-  entries.forEach(([name,items],index)=>{
-    const selected=state.category===name;
+  const all = createElement("button","category-tab"+(state.category==="Todo"?" active":""),"Todos");
+  all.type="button";all.dataset.category="Todo";all.setAttribute("aria-pressed",String(state.category==="Todo"));
+  const tabs=[all],cards=[];
+  entries.forEach(([name,items],index) => {
+    const selected = state.category===name;
     const tab=createElement("button","category-tab"+(selected?" active":""),name);
     tab.type="button";tab.dataset.category=name;tab.setAttribute("aria-pressed",String(selected));
-    tab.append(createElement("span","",items.length));
     tabs.push(tab);
     const card=createElement("button","category-card");
-    card.type="button";card.dataset.category=name;card.dataset.tone=String(index%3);
-    const example=[...items].sort((a,b)=>(a.order||999)-(b.order||999))[0];
-    if (example) {
-      const img=createElement("img");
-      img.alt="";img.loading="lazy";img.src=imagePath(example);
-      img.onerror=()=>img.remove();
-      card.append(img);
+    card.type="button";card.dataset.category=name;
+    card.setAttribute("aria-label","Ver "+name+" ("+items.length+" artículos)");
+    const imageUrl=editorialImages[name];
+    if(imageUrl){
+      const photo=createElement("img");
+      photo.src=imageUrl;photo.alt="";photo.loading="lazy";photo.decoding="async";
+      photo.onerror=()=>photo.remove();
+      card.append(photo);
     }
     const top=createElement("div","category-top");
     top.append(createElement("span","",String(index+1).padStart(2,"0")+" / CATEGORÍA"),createElement("span","category-arrow","↗"));
-    const bottom=createElement("div","category-bottom");
-    const label=createElement("div");
-    label.append(createElement("strong","",name),createElement("small","",items.length+" "+(items.length===1?"artículo":"artículos")));
-    bottom.append(label);
-    card.append(top,bottom);
-    cards.push(card);
+    const bottom=createElement("div","category-bottom"),group=createElement("div");
+    group.append(createElement("strong","",name),createElement("small","",items.length+" "+(items.length===1?"artículo":"artículos")));
+    bottom.append(group);card.append(top,bottom);cards.push(card);
   });
   elements.categoryTabs.replaceChildren(...tabs);
   elements.categoryCards.replaceChildren(...cards);
@@ -140,32 +140,32 @@ function getMatches() {
   return sortedProducts(items);
 }
 function createProductCard(product) {
-  const sold=isSold(product);
-  const card=createElement("article","product-card"+(sold?" sold-card":""));
+  const sold = isSold(product),card=createElement("article","product-card"+(sold?" sold-card":""));
   const photo=createElement("div","product-photo");
-  const fallback=createElement("div","product-placeholder");
-  fallback.append(createElement("strong","","vg."),createElement("span","","Imagen no disponible"));
-  photo.append(fallback);
+  const placeholder=createElement("div","product-placeholder");
+  placeholder.append(createElement("span","placeholder-icon","◇"),createElement("span","","Foto pendiente"));
+  photo.append(placeholder);
   const src=imagePath(product);
-  if (src) {
-    const img=createElement("img");img.src=src;img.loading="lazy";img.decoding="async";img.alt="Fotografía de "+product.name;
+  if(src){
+    const img=createElement("img");
+    img.src=src;img.loading="lazy";img.decoding="async";img.alt="Fotografía de "+product.name;
     img.addEventListener("error",()=>img.remove(),{once:true});photo.append(img);
   }
-  const pillText=sold?"Vendido":product.availability==="Reservado"?"Reservado":product.condition==="Nuevo con Etiqueta"?"Con etiqueta":"Disponible";
-  const pill=createElement("span","product-tag"+(sold?" sold":product.availability==="Reservado"?" reserved":""),pillText);
-  photo.append(pill);
-  const quick=createElement("button","product-quick","Ver detalles ↗");quick.type="button";
-  quick.dataset.product=product.id;quick.setAttribute("aria-label","Ver detalles de "+product.name);
+  const label=sold?"Vendido":product.availability==="Reservado"?"Reservado":product.condition==="Nuevo con Etiqueta"?"Con etiqueta":"Disponible";
+  const badge=createElement("span","product-tag"+(sold?" sold":product.availability==="Reservado"?" reserved":""),label);
+  photo.append(badge);
+  const quick=createElement("button","product-quick","Ver detalles ↗");
+  quick.type="button";quick.dataset.product=product.id;quick.setAttribute("aria-label","Ver detalles de "+product.name);
   photo.append(quick);
   const body=createElement("div","product-content");
   body.append(createElement("span","product-category",[product.category,product.type].filter(Boolean).join(" · ")));
   body.append(createElement("h3","product-title",product.name));
-  body.append(createElement("p","product-subtitle",[product.brand,product.size?"Talle "+product.size:null].filter(Boolean).join(" · ")||"Pieza seleccionada"));
+  body.append(createElement("p","product-subtitle",[product.brand,product.size?"Talle "+product.size:null].filter(Boolean).join(" · ")||""));
   const bottom=createElement("div","product-bottom");
   bottom.append(createElement("strong","product-price",priceLabel(product)));
-  const details=createElement("button","product-view","↗");details.type="button";details.dataset.product=product.id;details.setAttribute("aria-label","Ver "+product.name);
-  bottom.append(details);body.append(bottom);
-  card.append(photo,body);
+  const details=createElement("button","product-view","↗");
+  details.type="button";details.dataset.product=product.id;details.setAttribute("aria-label","Ver "+product.name);
+  bottom.append(details);body.append(bottom);card.append(photo,body);
   return card;
 }
 function renderActiveFilters() {
@@ -208,24 +208,17 @@ function setCategory(category) {
   $("#catalogo").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function setHero() {
-  const items=visiblePool().filter(p=>imagePath(p));
-  const featured=items.find(p=>p.category==="Ropa")||items[0];
-  const second=items.find(p=>p.category!==featured?.category)||items.find(p=>p.id!==featured?.id);
-  function setImage(img,product) {
-    if(!product){img.removeAttribute("src");return;}
-    img.src=imagePath(product);img.alt="Fotografía de "+product.name;
-    img.onerror=()=>img.removeAttribute("src");
-  }
-  setImage(elements.heroMain,featured);setImage(elements.heroSide,second);
   const count=state.products.filter(p=>isPublic(p)&&!isSold(p)).length;
-  elements.heroCount.textContent=count+" "+(count===1?"artículo para descubrir":"artículos para descubrir");
+  elements.heroCount.textContent=count+" "+(count===1?"artículo para descubrir":"artículos para descubrir")+" · Córdoba";
 }
 function openProduct(id) {
   const p=state.products.find(item=>item.id===id&&isPublic(item));
   if(!p) return;
   const img=$("#modalImage"),fallback=$("#modalFallback");
   img.hidden=false;fallback.hidden=true;
-  img.src=imagePath(p);img.alt="Foto grande de "+p.name;
+  const path=imagePath(p);
+  if(path) img.src=path; else {img.hidden=true;fallback.hidden=false;}
+  img.alt="Foto grande de "+p.name;
   img.onload=()=>{img.hidden=false;fallback.hidden=true;};
   img.onerror=()=>{img.hidden=true;fallback.hidden=false;};
   $("#modalCategory").textContent=[p.category,p.type].filter(Boolean).join(" / ");
@@ -246,7 +239,7 @@ function openProduct(id) {
     if(href) action.href=href;else action.removeAttribute("href");
     action.textContent=p.availability==="Reservado"?"Consultar disponibilidad ↗":"Consultar por WhatsApp ↗";
   }
-  elements.dialog.showModal();
+  if(typeof elements.dialog.showModal==="function")elements.dialog.showModal();
 }
 async function loadCatalog() {
   elements.loadError.hidden=true;
@@ -299,3 +292,20 @@ $("#modalClose").addEventListener("click",()=>elements.dialog.close());
 elements.dialog.addEventListener("click",e=>{if(e.target===elements.dialog)elements.dialog.close()});
 configureContactLinks();
 loadCatalog();
+
+const menuToggle = $("#menuToggle");
+if(menuToggle){
+  menuToggle.addEventListener("click",()=>{
+    const nav=$("#mobileNav"),opening=nav.hidden;
+    nav.hidden=!opening;
+    menuToggle.setAttribute("aria-expanded",String(opening));
+    menuToggle.setAttribute("aria-label",opening?"Cerrar menú":"Abrir menú");
+  });
+  $("#mobileNav").addEventListener("click",event=>{
+    if(event.target.closest("a")){
+      $("#mobileNav").hidden=true;
+      menuToggle.setAttribute("aria-expanded","false");
+      menuToggle.setAttribute("aria-label","Abrir menú");
+    }
+  });
+}
