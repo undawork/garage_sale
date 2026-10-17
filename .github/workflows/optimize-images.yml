@@ -10,6 +10,10 @@ on:
       - ".github/workflows/optimize-images.yml"
   workflow_dispatch:
 
+concurrency:
+  group: garage-sale-image-optimization
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -18,8 +22,10 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout latest catalog
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -41,5 +47,6 @@ jobs:
             echo "No image changes to commit."
           else
             git commit -m "chore: optimize product images"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
