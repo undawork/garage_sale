@@ -67,8 +67,8 @@ export default {
       const path=url.pathname==="/admin" ? "/admin/" : url.pathname;
       const response=await env.ASSETS.fetch(new Request(new URL(path,url),request));
       const headers=new Headers(response.headers);
-      headers.set("cache-control","no-store"); headers.set("x-frame-options","DENY"); headers.set("x-content-type-options","nosniff");
-      headers.set("content-security-policy","default-src 'self'; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");
+      headers.set("cache-control","no-store"); headers.set("x-frame-options","SAMEORIGIN"); headers.set("x-content-type-options","nosniff");
+      headers.set("content-security-policy","default-src 'self'; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'");
       return new Response(response.body,{status:response.status,headers});
     }
     if(request.method!=="GET" && (request.headers.get("origin")!==url.origin || !request.headers.get("content-type")?.startsWith("application/json"))) return json({error:"Solicitud no permitida"},403);
