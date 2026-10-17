@@ -9,11 +9,11 @@ await fs.mkdir(outputDir, { recursive: true });
 
 const entries = await fs.readdir(sourceDir, { withFileTypes: true });
 const images = entries
-  .filter(entry => entry.isFile() && /^VG-\d{3}\.(png|jpg|jpeg)$/i.test(entry.name))
+  .filter(entry => entry.isFile() && /^VG-\d{3,5}\.(png|jpg|jpeg)$/i.test(entry.name))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 for (const entry of images) {
-  const id = entry.name.match(/^(VG-\d{3})/i)?.[1]?.toUpperCase();
+  const id = entry.name.match(/^(VG-\d{3,5})/i)?.[1]?.toUpperCase();
   if (!id) continue;
 
   const input = path.join(sourceDir, entry.name);

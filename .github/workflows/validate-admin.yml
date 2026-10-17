@@ -20,6 +20,7 @@ jobs:
         run: |
           node --check src/worker.js
           node --check public/admin/admin.js
+          node --check public/admin/alta/quick-add.js
           node --check public/app.js
       - name: Install dependencies
         run: npm install --no-audit --no-fund
