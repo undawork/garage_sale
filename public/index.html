@@ -3,88 +3,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f5f0">
-  <meta name="description" content="Ropa, libros y accesorios en excelente estado. Encontrá tu próximo favorito en nuestra venta de garage en Córdoba. Fotos reales y consultas por WhatsApp.">
-  <title>Venta de Garage · Hallazgos con otra historia</title>
+  <meta name="theme-color" content="#f7f7f5">
+  <meta name="description" content="Venta de Garage en Córdoba. Ropa, libros y accesorios en buen estado, con fotos reales y consultas por WhatsApp.">
+  <meta name="robots" content="index,follow">
+  <title>Venta de Garage · Buenas cosas siguen circulando</title>
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="announcement"><span class="announcement-dot"></span> Una selección de piezas listas para una nueva historia <span class="announcement-dot"></span></div>
+  <div class="announcement"><span>OBJETOS CON HISTORIA · CÓRDOBA, ARGENTINA</span><a id="announcementContact" href="#como-funciona">Consultanos por WhatsApp <span aria-hidden="true">↗</span></a></div>
   <header class="site-header">
     <div class="wrap nav">
-      <a class="logo" href="/" aria-label="Venta de Garage, inicio"><span class="logo-symbol">vg<span class="logo-dot">.</span></span><span class="logo-words">VENTA DE<br>GARAGE</span></a>
-      <nav class="primary-nav" aria-label="Navegación principal"><a href="#categorias">Categorías</a><a href="#catalogo">Explorar todo</a><a href="#como-funciona">Cómo comprar</a></nav>
-      <a class="nav-contact" id="navContact" href="#como-funciona">Hablemos <span aria-hidden="true">↗</span></a>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero wrap" aria-labelledby="heroTitle">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="eyebrow-line"></span> UNA SEGUNDA OPORTUNIDAD, MUCHO ESTILO</p>
-        <h1 id="heroTitle">Pequeños<br><em>grandes</em><br>hallazgos<span class="accent-period">.</span></h1>
-        <p class="hero-description">Ropa, libros y accesorios que merecen seguir acompañando historias. Elegidos con cariño, fotografiados tal como son y listos para encontrar un nuevo hogar.</p>
-        <div class="hero-actions"><a class="button button-dark" href="#catalogo">Explorar productos <span aria-hidden="true">↗</span></a><a class="button button-link" href="#categorias">Ver categorías <span aria-hidden="true">↓</span></a></div>
-        <div class="hero-proof"><div class="proof-bubbles"><span>✦</span><span>♡</span><span>↗</span></div><p><strong id="heroCount">Cargando colección…</strong><br><span>Fotos reales, precios claros</span></p></div>
+      <a class="wordmark" href="/" aria-label="Venta de Garage, inicio">Venta de Garage<span>.</span></a>
+      <nav class="primary-nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#categorias">Categorías</a>
+        <a href="#catalogo">Productos</a>
+        <a href="#como-funciona">Cómo comprar</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="nav-search" href="#catalogo" aria-label="Ir al buscador de productos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+        <a class="nav-contact" id="navContact" href="#como-funciona">WhatsApp <span aria-hidden="true">↗</span></a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menú" aria-controls="mobileNav" aria-expanded="false"><span></span><span></span></button>
       </div>
-      <div class="hero-visual" aria-label="Fotografías de artículos del catálogo">
-        <div class="hero-image hero-image-main"><img id="heroMainImage" alt="Producto destacado de la venta de garage" loading="eager"><span class="hero-sticker">HALLAZGOS<br>CON HISTORIA <span aria-hidden="true">✳</span></span></div>
-        <div class="hero-image hero-image-small"><img id="heroSideImage" alt="Otro producto destacado de la colección" loading="eager"><span class="image-caption">01 — DESCUBRÍ ALGO ESPECIAL</span></div>
-        <div class="hero-corner" aria-hidden="true">Curado para vos <span>↗</span></div>
+    </div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Menú móvil" hidden>
+      <a href="#inicio">Inicio</a><a href="#categorias">Categorías</a><a href="#catalogo">Productos</a><a href="#como-funciona">Cómo comprar</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero" id="inicio" aria-labelledby="heroTitle">
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <span class="eyebrow">SEGUNDA MANO. NUEVAS HISTORIAS.</span>
+          <h1 id="heroTitle">Buenas cosas<br>siguen <em>circulando.</em></h1>
+          <p>Ropa, libros y accesorios con historia. Una selección de piezas reales, en buen estado y listas para su próximo capítulo.</p>
+          <div class="hero-actions">
+            <a class="button button-solid" href="#catalogo">Explorar productos <span aria-hidden="true">↗</span></a>
+            <a class="button button-outline" href="#categorias">Ver categorías <span aria-hidden="true">↓</span></a>
+          </div>
+          <span class="hero-counter" id="heroCount">Explorá nuestra colección</span>
+        </div>
+        <div class="hero-art">
+          <img id="heroEditorial" src="https://images.unsplash.com/photo-1788119667207-fffeae50b488?auto=format&amp;fit=crop&amp;w=1300&amp;q=78" alt="Fotografía editorial en blanco y negro, imagen ilustrativa de la colección" fetchpriority="high" decoding="async">
+          <div class="hero-image-overlay"><span>Más historias.</span><span>Menos desperdicio.</span></div>
+          <span class="hero-image-credit">IMAGEN EDITORIAL · NO REPRESENTA UN PRODUCTO</span>
+        </div>
+      </div>
+    </section>
+    <section class="benefits" aria-label="Sobre nuestra tienda">
+      <div class="wrap benefits-grid">
+        <div class="benefit"><span class="benefit-icon" aria-hidden="true">✳</span><div><strong>Segunda oportunidad</strong><small>Buenas cosas, nuevas historias</small></div></div>
+        <div class="benefit"><span class="benefit-icon" aria-hidden="true">◎</span><div><strong>Fotos de cada artículo</strong><small>Conocé su estado real</small></div></div>
+        <div class="benefit"><span class="benefit-icon" aria-hidden="true">↗</span><div><strong>Consulta directa</strong><small>Coordinamos por WhatsApp</small></div></div>
       </div>
     </section>
 
-    <section class="benefits" aria-label="Nuestra propuesta"><div class="wrap benefits-inner"><span><b aria-hidden="true">✳</b> Piezas seleccionadas</span><span><b aria-hidden="true">◇</b> Fotografías reales</span><span><b aria-hidden="true">↗</b> Coordinamos por WhatsApp</span></div></section>
-
     <section class="categories-section wrap" id="categorias" aria-labelledby="categoriesTitle">
-      <div class="section-heading"><div><span class="section-kicker">ENCONTRÁ LO QUE BUSCÁS</span><h2 id="categoriesTitle">Explorá por <em>categoría</em></h2></div><p>Cada objeto tiene su encanto. Elegí por dónde querés empezar.</p></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">EXPLORÁ POR CATEGORÍA</span><h2 id="categoriesTitle">Encontrá tu próxima <em>historia.</em></h2></div>
+        <a class="section-link" href="#catalogo">Ver todo el catálogo <span aria-hidden="true">↗</span></a>
+      </div>
       <div class="category-grid" id="categoryCards" aria-live="polite"><p class="loading-text">Cargando categorías…</p></div>
     </section>
 
     <section class="catalog-section" id="catalogo" aria-labelledby="catalogTitle">
       <div class="wrap">
-        <div class="section-heading catalog-heading"><div><span class="section-kicker">EL CATÁLOGO</span><h2 id="catalogTitle">Todo lo <em>disponible</em></h2></div><p id="catalogIntro">Encontrá tu próximo favorito entre nuestras piezas.</p></div>
-        <div class="catalog-controls">
+        <div class="section-heading product-heading">
+          <div><span class="eyebrow">OBJETOS QUE VALEN LA PENA</span><h2 id="catalogTitle">Tesoros únicos, <em>nuevas historias.</em></h2></div>
+          <p id="catalogIntro">Descubrí piezas listas para una nueva etapa.</p>
+        </div>
+        <div class="catalog-tools">
+          <label class="search-field" for="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m16 16 5 5"/></svg>
+            <input id="search" type="search" autocomplete="off" placeholder="Buscar productos, marcas, talles..." aria-label="Buscar productos">
+          </label>
           <div class="category-tabs" id="categoryTabs" aria-label="Filtrar por categoría"></div>
-          <div class="search-controls">
-            <label class="search-field" for="search"><span aria-hidden="true">⌕</span><input id="search" type="search" autocomplete="off" placeholder="¿Qué estás buscando?" aria-label="Buscar productos por nombre, marca, talle o descripción"></label>
+          <div class="tool-end">
             <label class="sr-only" for="sort">Ordenar por</label>
             <select id="sort"><option value="order">Destacados</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option><option value="name">Nombre A–Z</option></select>
-            <button class="filter-button" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">Filtros <span id="filterBadge" hidden>0</span><span aria-hidden="true">⌄</span></button>
+            <button class="filter-button" id="filterToggle" type="button" aria-controls="filterPanel" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg> Filtros <span id="filterBadge" hidden>0</span></button>
           </div>
-          <section class="filter-panel" id="filterPanel" aria-label="Filtros adicionales" hidden>
-            <div class="filter-grid">
-              <label>Tipo <select id="typeFilter"></select></label>
-              <label>Marca <select id="brandFilter"></select></label>
-              <label>Talle <select id="sizeFilter"></select></label>
-              <label>Condición <select id="conditionFilter"></select></label>
-              <label>Color <select id="colorFilter"></select></label>
-            </div>
-            <div class="filter-panel-bottom"><label class="sold-toggle"><input type="checkbox" id="showSold"> Mostrar artículos vendidos</label><button type="button" class="text-clear" id="clearFilters">Limpiar filtros</button></div>
-          </section>
-          <div id="activeFilters" class="active-filters" aria-label="Filtros aplicados"></div>
         </div>
-        <div class="result-header"><p id="resultCount" role="status">Cargando productos…</p><span class="result-hint">Deslizá y descubrí tu próximo favorito <span aria-hidden="true">↘</span></span></div>
-        <div class="product-grid" id="grid" aria-live="polite"></div>
-        <div id="empty" class="empty-state" hidden><span aria-hidden="true">⌕</span><h3>No encontramos coincidencias</h3><p>Probá con otra búsqueda o sacá alguno de los filtros.</p><button class="button button-dark" type="button" id="emptyReset">Ver todos los productos</button></div>
-        <div id="loadError" class="empty-state" hidden><h3>No pudimos cargar el catálogo</h3><p>Volvé a intentarlo en unos instantes.</p><button class="button button-dark" id="retryLoad" type="button">Volver a intentar</button></div>
+        <section id="filterPanel" class="filter-panel" aria-label="Filtros adicionales" hidden>
+          <div class="filter-grid">
+            <label>Tipo<select id="typeFilter"></select></label><label>Marca<select id="brandFilter"></select></label><label>Talle<select id="sizeFilter"></select></label><label>Condición<select id="conditionFilter"></select></label><label>Color<select id="colorFilter"></select></label>
+          </div>
+          <div class="filter-panel-bottom"><label class="sold-toggle"><input type="checkbox" id="showSold"> Mostrar productos vendidos</label><button class="text-clear" id="clearFilters" type="button">Limpiar filtros</button></div>
+        </section>
+        <div class="active-filters" id="activeFilters" aria-label="Filtros aplicados"></div>
+        <div class="result-header"><p id="resultCount" role="status">Cargando productos…</p><span class="result-hint">Elegí un artículo para ver sus detalles</span></div>
+        <div id="grid" class="product-grid" aria-live="polite"></div>
+        <section class="empty-state" id="empty" hidden><span aria-hidden="true">⌕</span><h3>No encontramos coincidencias</h3><p>Probá con otra búsqueda o quitá algún filtro.</p><button type="button" id="emptyReset" class="button button-solid">Ver todos los productos</button></section>
+        <section class="empty-state" id="loadError" hidden><h3>No pudimos cargar el catálogo</h3><p>Intentá nuevamente en unos instantes.</p><button id="retryLoad" type="button" class="button button-solid">Reintentar</button></section>
       </div>
     </section>
 
     <section class="how-section wrap" id="como-funciona" aria-labelledby="howTitle">
-      <div class="how-intro"><span class="section-kicker">COMPRAR ES SIMPLE</span><h2 id="howTitle">Lo viste, <em>te encantó</em>, ¿hablamos?</h2><p>Sin carrito ni vueltas. Consultanos por la prenda que te interesa y coordinamos directamente.</p><a id="footerContact" class="button button-dark" href="#catalogo">Escribinos por WhatsApp <span aria-hidden="true">↗</span></a></div>
-      <div class="how-steps"><div class="how-step"><span>01</span><div><h3>Explorá a tu ritmo</h3><p>Filtrá por categoría, tipo, talle o marca.</p></div></div><div class="how-step"><span>02</span><div><h3>Elegí lo que te guste</h3><p>Abrí una ficha para ver detalles y una foto más grande.</p></div></div><div class="how-step"><span>03</span><div><h3>Escribinos</h3><p>Te respondemos por WhatsApp y coordinamos los siguientes pasos.</p></div></div></div>
+      <div class="how-copy"><span class="eyebrow">ASÍ DE SIMPLE</span><h2 id="howTitle">Encontralo.<br>Consultalo.<br><em>Disfrutalo.</em></h2><p>Sin carrito ni pagos automáticos. Nos escribís por el producto que te gusta y coordinamos directamente.</p><a class="button button-solid" id="footerContact" href="#catalogo">Escribinos por WhatsApp <span aria-hidden="true">↗</span></a></div>
+      <div class="how-steps"><div class="how-step"><span>01</span><div><h3>Explorá la tienda</h3><p>Descubrí las categorías y encontrá lo que buscás.</p></div></div><div class="how-step"><span>02</span><div><h3>Revisá los detalles</h3><p>Consultá el precio, talle, estado y fotos reales.</p></div></div><div class="how-step"><span>03</span><div><h3>Hablemos</h3><p>Mandanos un mensaje por WhatsApp y coordinamos.</p></div></div></div>
     </section>
   </main>
-
-  <footer class="footer"><div class="wrap footer-inner"><a class="logo" href="/" aria-label="Volver al inicio"><span class="logo-symbol">vg<span class="logo-dot">.</span></span><span class="logo-words">VENTA DE<br>GARAGE</span></a><p>Buenas cosas merecen una segunda vida.</p><span>Córdoba, Argentina · Hecho con cariño ♡</span></div></footer>
-  <a class="floating-contact" id="floatingContact" href="#como-funciona" aria-label="Consultar por WhatsApp" target="_blank" rel="noopener"><span aria-hidden="true">✦</span> Consultanos</a>
+  <footer class="footer"><div class="wrap footer-inner"><div><a href="/" class="wordmark">Venta de Garage<span>.</span></a><p>Buenas cosas merecen otra historia.</p></div><div><a href="#categorias">Categorías</a><a href="#catalogo">Productos</a><a href="#como-funciona">Cómo comprar</a></div><small>Córdoba, Argentina · Venta de Garage</small></div></footer>
+  <a class="floating-contact" id="floatingContact" href="#como-funciona" aria-label="Consultar por WhatsApp" target="_blank" rel="noopener"><span aria-hidden="true">◉</span> WhatsApp</a>
 
   <dialog id="productDialog" class="product-dialog" aria-labelledby="modalName">
-    <button type="button" class="modal-close" id="modalClose" aria-label="Cerrar detalle">×</button>
-    <div class="modal-layout">
-      <div class="modal-image"><img id="modalImage" alt=""><div id="modalFallback" class="modal-fallback" hidden>Fotografía no disponible</div><span id="modalBadge" class="modal-badge" hidden></span></div>
-      <div class="modal-info"><span id="modalCategory" class="section-kicker">DETALLES DEL PRODUCTO</span><h2 id="modalName"></h2><span id="modalCode" class="modal-code"></span><div class="modal-price" id="modalPrice"></div><p id="modalDescription" class="modal-description"></p><div id="modalSpecs" class="modal-specs"></div><a id="modalWhatsApp" class="button button-dark modal-cta" href="#" target="_blank" rel="noopener">Consultar por WhatsApp <span aria-hidden="true">↗</span></a><p class="modal-note">¿Querés saber algo más? Preguntanos sin compromiso.</p></div>
+    <button class="modal-close" type="button" id="modalClose" aria-label="Cerrar detalle">×</button>
+    <div class="modal-layout"><div class="modal-image"><img id="modalImage" alt=""><div id="modalFallback" class="modal-fallback" hidden><span class="fallback-icon" aria-hidden="true">◇</span><span>Fotografía pendiente</span></div><span id="modalBadge" class="modal-badge" hidden></span></div>
+      <div class="modal-info"><span id="modalCategory" class="eyebrow">DETALLES</span><h2 id="modalName"></h2><span id="modalCode" class="modal-code"></span><strong class="modal-price" id="modalPrice"></strong><p id="modalDescription" class="modal-description"></p><div class="modal-specs" id="modalSpecs"></div><a id="modalWhatsApp" class="button button-solid modal-cta" href="#" target="_blank" rel="noopener">Consultar por WhatsApp ↗</a><p class="modal-note">Consultanos sin compromiso.</p></div>
     </div>
   </dialog>
   <script src="/config.js"></script>
