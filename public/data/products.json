@@ -17,23 +17,6 @@
     "order": 1
   },
   {
-    "id": "VG-002",
-    "name": "Zara · Remera Gradient",
-    "category": "Ropa",
-    "type": "Remera",
-    "brand": "Zara",
-    "size": "XL",
-    "color": "Gradient",
-    "condition": "Nuevo con Etiqueta",
-    "price": 28000,
-    "currency": "ARS",
-    "availability": "Vendido",
-    "publish": true,
-    "image": null,
-    "description": "Diseño degradé",
-    "order": 2
-  },
-  {
     "id": "VG-003",
     "name": "Zara · Buzo Azul",
     "category": "Ropa",
@@ -508,5 +491,22 @@
     "image": null,
     "description": "Sombrero estilo fedora de fieltro negro con ala ancha.",
     "order": 30
+  },
+  {
+    "id": "VG-002",
+    "name": "Zara · Remera Gradient",
+    "category": "Ropa",
+    "type": "Remera",
+    "brand": "Zara",
+    "size": "XL",
+    "color": "Gradient",
+    "condition": "Nuevo con Etiqueta",
+    "price": 28000,
+    "currency": "ARS",
+    "availability": "Vendido",
+    "publish": true,
+    "image": null,
+    "description": "Diseño degradé",
+    "order": 2
   }
 ]
