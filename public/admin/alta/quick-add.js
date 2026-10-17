@@ -117,9 +117,7 @@ function renderCard(draft){
   const check=document.createElement("input");check.type="checkbox";check.checked=draft.visible;
   check.addEventListener("change",()=>{draft.visible=check.checked});
   visible.append(check,txt("span","","Publicar visible en la tienda"));
-  body.append(top,field(draft,"Nombre *","name",{wide:true,placeholder:"Nombre del artículo"}));
-  // Evitar dos campos de nombre; mostrar el campo único dentro de la grilla.
-  body.lastChild.remove();body.append(grid,visible);
+  body.append(top,grid,visible);
   const note=txt("p","draft-state","Listo para revisar");
   body.append(note);card.append(thumb,body,remove);
   return card;
