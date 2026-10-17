@@ -65,3 +65,25 @@ assert.equal(created[1].height,1500);
 assert.equal(calls.find(x => x[0] === "rotate")[1],Math.PI*1.5);
 assert.equal(closed,2);
 console.log("Image rotation: preview math, 90°/270° transforms, JPEG output and cleanup verified.");
+
+
+// A large generated PNG may become a JPEG above the API limit. The encoder
+// must retry at smaller dimensions instead of rejecting the user's image.
+let encodeCount = 0;
+const beforeCount = created.length;
+sandbox.document.createElement = name => {
+  assert.equal(name, "canvas");
+  const next = canvas(0, 0);
+  next.toDataURL = () => {
+    encodeCount++;
+    return encodeCount <= 4 ? "data:image/jpeg;base64," + "a".repeat(2700000) : "data:image/jpeg;base64,SGVsbG8=";
+  };
+  created.push(next);
+  return next;
+};
+const compressed = await toJpegData({}, 0, "editor");
+assert.match(compressed, /^data:image\/jpeg;base64,/);
+assert.equal(encodeCount, 5);
+assert.equal(created.length, beforeCount + 2);
+assert.ok(created[beforeCount+1].width < created[beforeCount].width);
+console.log("Oversized image: adaptive re-encoding and downscaling verified.");

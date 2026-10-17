@@ -84,9 +84,11 @@
         <div class="editor-photo">
           <div class="image-stage"><img id="preview" alt="Foto del producto" hidden><canvas id="rotatedPreview" width="480" height="600" aria-label="Vista previa de la fotografía girada" hidden></canvas><div id="imageEmpty" class="image-empty" hidden><span>◇</span><strong>Foto pendiente</strong><small>El producto aún no tiene una fotografía publicada.</small></div></div>
           <label class="photo-upload">Reemplazar fotografía<input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"></label>
+          <button id="uploadPhoto" class="btn primary photo-upload-action" type="button" hidden>Subir esta foto ↗</button>
+          <p id="photoUploadHelp" class="photo-upload-help" role="status" aria-live="polite" hidden></p>
           <div id="editorRotate" class="rotate-controls" hidden><button type="button" id="editorRotateLeft" class="rotate-button" aria-label="Girar fotografía 90 grados a la izquierda">↶ Girar izquierda</button><button type="button" id="editorRotateRight" class="rotate-button" aria-label="Girar fotografía 90 grados a la derecha">Girar derecha ↷</button></div>
           <p id="editorRotateLabel" class="rotate-caption" role="status" aria-live="polite" hidden></p>
-          <p class="hint">Si elegís otra foto, se subirá al guardar. La optimización puede tardar unos minutos. Todavía no se elimina el fondo automáticamente.</p>
+          <p class="hint">Elegí una imagen y tocá «Subir esta foto». También podés usar «Guardar cambios» para subirla junto con los datos. Verificaremos el envío; la imagen puede tardar unos minutos en aparecer en la tienda. No se elimina el fondo automáticamente.</p>
         </div>
         <div class="editor-fields">
           <div class="editor-product-head"><span id="previewStatus" class="status-pill">Disponible</span><span id="previewVisibility" class="visibility"></span></div>

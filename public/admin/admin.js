@@ -5,7 +5,7 @@ const money=v=>v===null||v===undefined||v===""?"Consultar":new Intl.NumberFormat
 const photoURL=p=>p.image||("/products/"+p.id+".webp");
 const form=$("#form"),dialog=$("#editDialog"),addDialog=$("#addDialog"),frame=$("#addFrame");
 const keys=["id","name","category","type","brand","size","color","condition","price","availability","order","description"];
-let products=[],sha="",readOnly=true,busy=false,dirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null,localSource=null,photoRotation=0;
+let products=[],sha="",readOnly=true,busy=false,dirty=false,formDirty=false,photoDirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null,localSource=null,photoRotation=0;
 const selected=new Set();
 function notify(message,error=false){
   const node=$("#notice");node.textContent=message;node.classList.toggle("error",error);node.hidden=!message;
@@ -131,7 +131,8 @@ function openEditor(id){
   if(busy||readOnly)return;
   if(dialog.open){if(!requestCloseEditor())return}
   const p=products.find(v=>v.id===id);if(!p)return;
-  currentId=id;dirty=false;revoke();
+  currentId=id;dirty=false;formDirty=false;photoDirty=false;revoke();
+  $("#uploadPhoto").hidden=true;$("#photoUploadHelp").hidden=true;$("#photoUploadHelp").textContent="";
   for(const key of keys){
     const input=form.elements.namedItem(key);if(input)input.value=p[key]??"";
   }
@@ -145,8 +146,8 @@ function openEditor(id){
 }
 function requestCloseEditor(){
   if(busy){report("Esperá a que termine de guardar.");return false}
-  if(dirty&&!confirm("Tenés cambios sin guardar. ¿Descartarlos?"))return false;
-  dirty=false;revoke();dialog.close();currentId=null;return true;
+  if((dirty||$("#photo").files?.length)&&!confirm("Tenés cambios sin guardar. ¿Descartarlos?"))return false;
+  dirty=false;formDirty=false;photoDirty=false;revoke();dialog.close();currentId=null;return true;
 }
 function buildDraft(){
   const original=current();if(!original)throw Error("No hay producto seleccionado");
@@ -182,6 +183,49 @@ async function saveCatalog(next,message){
     report(e.message,true);return false;
   }finally{busy=false;$("#save").disabled=readOnly;render()}
 }
+/* Subir una imagen NO debe requerir guardar de nuevo toda la ficha.
+   El archivo va a GitHub, luego su optimizador genera WebP y Cloudflare
+   publica la actualización. Si falla, la foto seleccionada se conserva
+   para poder reintentar sin modificar los datos del artículo. */
+async function uploadReplacementPhoto(){
+  if(busy||readOnly)return false;
+  const p=current(),file=$("#photo").files?.[0];
+  if(!p||!file){
+    report("Primero elegí una imagen para reemplazar la fotografía.",true);return false;
+  }
+  if(!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)){
+    report("Formato no admitido. Elegí JPG, PNG o WebP.",true);return false;
+  }
+  if(file.size>25*1024*1024){
+    report("La foto es muy grande. Elegí una de menos de 25 MB.",true);return false;
+  }
+  const uploadButton=$("#uploadPhoto"),help=$("#photoUploadHelp");
+  busy=true;uploadButton.disabled=true;$("#save").disabled=true;$("#photo").disabled=true;
+  help.hidden=false;help.classList.remove("error");help.textContent="Preparando la imagen para subirla…";
+  report("Preparando la fotografía…");
+  try{
+    const image=await jpegData(file,photoRotation);
+    help.textContent="Subiendo la fotografía a GitHub…";
+    report("Enviando la fotografía…");
+    await api("image",{method:"PUT",body:JSON.stringify({id:p.id,data:image})});
+    $("#photo").value="";
+    photoDirty=false;dirty=formDirty;
+    uploadButton.hidden=true;
+    $("#editorRotate").hidden=true;
+    $("#editorRotateLabel").hidden=true;
+    help.textContent="✓ Foto recibida por GitHub. Se está optimizando y Cloudflare la publicará en unos minutos. La vista previa muestra la nueva imagen seleccionada.";
+    report("✓ Fotografía enviada correctamente. La publicación puede tardar unos minutos.");
+    notify("Fotografía de "+p.name+" subida correctamente. Se está procesando; no hace falta repetir la carga.");
+    return true;
+  }catch(e){
+    help.classList.add("error");
+    help.textContent="No se pudo subir: "+e.message+". La foto sigue seleccionada; podés intentar de nuevo.";
+    report("No se pudo cargar la foto: "+e.message+". Probá otra vez o utilizá un JPG.",true);
+    return false;
+  }finally{
+    busy=false;uploadButton.disabled=false;$("#save").disabled=readOnly;$("#photo").disabled=false;
+  }
+}
 async function submitEdit(event){
   event.preventDefault();
   if(busy||readOnly)return;
@@ -192,31 +236,20 @@ async function submitEdit(event){
   }
   const file=$("#photo").files?.[0]||null;
   if(edited.publish&&p.publish===false&&(file||!(await photoReady(p)))){
-    report("Primero esperá a que la fotografía esté publicada. Después podrás activar la ficha.",true);
+    report("Primero subí la fotografía y esperá a que esté disponible. Después podrás publicar la ficha.",true);
     form.elements.namedItem("publish").checked=false;preview();return;
   }
-  if(file&&!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)){
-    report("Elegí una fotografía válida.",true);return;
+  if(file&&!await uploadReplacementPhoto())return;
+  if(formDirty){
+    const next=products.map(x=>x.id===p.id?edited:x);
+    report("Guardando cambios de la ficha…");
+    const ok=await saveCatalog(next,"Datos guardados. Cloudflare actualizará la tienda.");
+    if(!ok)return;
+  }else if(!file){
+    report("No hay cambios pendientes.");return;
   }
-  const next=products.map(x=>x.id===p.id?edited:x);
-  report("Guardando datos…");
-  const ok=await saveCatalog(next,"Datos guardados. Cloudflare actualizará la tienda.");
-  if(!ok)return;
-  dirty=false;
-  if(file){
-    busy=true;$("#save").disabled=true;render();
-    report("Datos guardados. Enviando la fotografía…");
-    try{
-      const image=await jpegData(file,photoRotation);
-      await api("image",{method:"PUT",body:JSON.stringify({id:edited.id,data:image})});
-      report("Datos y foto enviados. La imagen se verá después del procesamiento y despliegue.");
-      notify("Datos y fotografía guardados. La foto nueva tardará unos minutos en aparecer en la tienda.");
-      $("#photo").value="";
-    }catch(e){
-      report("Datos guardados, pero no se subió la foto: "+e.message+" Volvé a guardar para reintentar.",true);
-      return;
-    }finally{busy=false;$("#save").disabled=readOnly;render()}
-  }
+  dirty=false;formDirty=false;photoDirty=false;
+  if(file)notify("Fotografía enviada correctamente. La nueva foto se verá cuando terminen la optimización y el despliegue.");
   revoke();dialog.close();currentId=null;render();
 }
 async function bulk(action){
@@ -267,8 +300,8 @@ function closeAdd(){
   // Recargar la lista también cuando el usuario cerró sin recibir el mensaje de publicación.
   reload(true);
 }
-form.addEventListener("input",e=>{if(e.target.id==="photo")return;dirty=true;preview()});
-form.addEventListener("change",e=>{if(e.target.id==="photo")return;dirty=true;preview()});
+form.addEventListener("input",e=>{if(e.target.id==="photo")return;dirty=true;formDirty=true;preview()});
+form.addEventListener("change",e=>{if(e.target.id==="photo")return;dirty=true;formDirty=true;preview()});
 form.addEventListener("submit",submitEdit);
 $("#photo").addEventListener("change",e=>{
   revoke();
@@ -289,16 +322,25 @@ $("#photo").addEventListener("change",e=>{
     $("#editorRotate").hidden=false;
     $("#editorRotateLabel").hidden=false;
     $("#editorRotateLabel").textContent="Orientación original";
-    dirty=true;
+    dirty=true;photoDirty=true;
+    $("#uploadPhoto").hidden=false;
+    $("#photoUploadHelp").hidden=false;
+    $("#photoUploadHelp").classList.remove("error");
+    $("#photoUploadHelp").textContent="Imagen lista para revisar. Girala si lo necesitás y tocá «Subir esta foto».";
     report("Preparando vista previa de la foto…");
-  }else photoPreview(current());
+  }else {
+    photoDirty=false;dirty=formDirty;
+    $("#uploadPhoto").hidden=true;$("#photoUploadHelp").hidden=true;
+    photoPreview(current());
+  }
 });
+$("#uploadPhoto").addEventListener("click",uploadReplacementPhoto);
 function rotateEditorPhoto(delta){
-  if(!localURL||busy)return;
+  if(!localURL||!$("#photo").files?.length||busy)return;
   photoRotation=window.GarageImageTools.angle(photoRotation+delta);
   photoPreview(current());
   $("#editorRotateLabel").textContent=photoRotation?"Rotación: "+photoRotation+"°. Se guardará en esa posición.":"Orientación original";
-  dirty=true;
+  dirty=true;photoDirty=true;
 }
 $("#editorRotateLeft").addEventListener("click",()=>rotateEditorPhoto(-90));
 $("#editorRotateRight").addEventListener("click",()=>rotateEditorPhoto(90));
