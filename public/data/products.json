@@ -1,22 +1,5 @@
 [
   {
-    "id": "VG-003",
-    "name": "Zara · Buzo Azul",
-    "category": "Ropa",
-    "type": "Buzo",
-    "brand": "Zara",
-    "size": "XL",
-    "color": "Azul",
-    "condition": "Como Nuevo",
-    "price": 32000,
-    "currency": "ARS",
-    "availability": "Disponible",
-    "publish": true,
-    "image": null,
-    "description": "Buzo azul de Zara en talle XL.",
-    "order": 3
-  },
-  {
     "id": "VG-004",
     "name": "Zara · Sobretodo de Lana Negro",
     "category": "Ropa",
