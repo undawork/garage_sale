@@ -1,1 +1,102 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Administrar · Venta de Garage</title><link rel="stylesheet" href="/admin/admin.css"></head><body><header><div><small>VENTA DE GARAGE</small><h1>Administrar productos</h1></div><a href="/" target="_blank" rel="noopener">Ver tienda ↗</a></header><main><aside><div class="heading"><strong>Productos</strong><button id="new" type="button">+ Nuevo</button></div><input id="search" placeholder="Buscar productos..." aria-label="Buscar productos"><p id="count">Cargando…</p><div id="items" class="items"></div></aside><section class="editor"><form id="form"><div class="heading"><h2 id="title">Seleccioná un producto</h2><button id="save" type="submit">Guardar cambios</button></div><p id="status" role="status"></p><div class="fields"><label>ID<input name="id" required pattern="VG-[0-9]{3,5}" placeholder="VG-031"></label><label>Nombre<input name="name" required maxlength="160"></label><label>Categoría<input name="category" required></label><label>Tipo<input name="type"></label><label>Marca<input name="brand"></label><label>Talle<input name="size"></label><label>Color<input name="color"></label><label>Estado<input name="condition"></label><label>Precio en ARS<input name="price" type="number" min="0" step="1" placeholder="Consultar"></label><label>Disponibilidad<select name="availability"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></label><label>Orden<input name="order" type="number" min="1"></label><label class="check"><input name="publish" type="checkbox" checked> Publicar en la tienda</label><label class="wide">Descripción<textarea name="description" rows="3"></textarea></label></div><section class="photo"><h3>Fotografía principal</h3><img id="preview" alt="Vista previa de fotografía" hidden><input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic" aria-label="Elegir fotografía"><p>La foto se reduce a JPEG y se sube a GitHub. La optimización WebP se realiza automáticamente después. Guardá primero el producto nuevo.</p><button type="button" id="upload">Subir fotografía</button></section></form></section></main><script src="/admin/admin.js" defer></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#f5f2eb">
+  <title>Inventario · Venta de Garage</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><span class="eyebrow">VENTA DE GARAGE / ADMIN</span><h1>Mi inventario</h1><p>Actualizá productos, fotos y disponibilidad desde un solo lugar.</p></div>
+    <a class="shop-link" href="/" target="_blank" rel="noopener">Ver tienda <span aria-hidden="true">↗</span></a>
+  </header>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  <section class="stats" aria-label="Resumen de inventario">
+    <div class="stat"><span>Productos</span><strong id="stat-total">—</strong></div>
+    <div class="stat"><span>Disponibles</span><strong id="stat-available">—</strong></div>
+    <div class="stat"><span>Reservados</span><strong id="stat-reserved">—</strong></div>
+    <div class="stat"><span>Vendidos</span><strong id="stat-sold">—</strong></div>
+    <div class="stat"><span>Ocultos</span><strong id="stat-hidden">—</strong></div>
+  </section>
+  <main class="workspace">
+    <aside class="inventory" aria-label="Listado de productos">
+      <div class="section-title"><div><h2>Productos</h2><p id="count">Cargando…</p></div><button type="button" id="new" class="btn primary">+ Nuevo</button></div>
+      <div class="filters">
+        <label class="sr-only" for="search">Buscar por nombre o ID</label>
+        <input id="search" type="search" placeholder="Buscar por nombre o código…">
+        <label class="sr-only" for="statusFilter">Filtrar por estado</label>
+        <select id="statusFilter"><option value="Todos">Todos los estados</option><option value="Disponible">Disponibles</option><option value="Reservado">Reservados</option><option value="Vendido">Vendidos</option><option value="Oculto">Ocultos</option></select>
+      </div>
+      <div class="selection-line">
+        <label class="select-all"><input type="checkbox" id="selectAll"> Seleccionar visibles</label>
+        <button type="button" id="clearSelection" class="text-btn">Limpiar selección</button>
+      </div>
+      <div id="bulk" class="bulk" hidden>
+        <strong id="bulkCount">0 seleccionados</strong>
+        <div class="bulk-actions">
+          <button type="button" data-bulk="Vendido">Vendido</button>
+          <button type="button" data-bulk="Reservado">Reservado</button>
+          <button type="button" data-bulk="Disponible">Disponible</button>
+          <button type="button" data-bulk="hide">Ocultar</button>
+          <button type="button" data-bulk="show">Publicar</button>
+          <button type="button" data-bulk="delete" class="danger">Eliminar</button>
+        </div>
+      </div>
+      <div id="items" class="items" aria-label="Productos"></div>
+    </aside>
+    <section class="editor" aria-label="Editar producto">
+      <form id="form">
+        <div class="editor-head"><div><span class="eyebrow">EDITOR DE PRODUCTO</span><h2 id="title">Seleccioná un producto</h2><p id="subTitle">Los cambios se publican automáticamente al guardarlos.</p></div><button type="submit" id="save" class="btn primary">Guardar cambios</button></div>
+        <p id="status" role="status" aria-live="polite"></p>
+        <section class="preview-layout" aria-label="Vista previa en la tienda">
+          <div class="image-stage">
+            <img id="preview" alt="Foto del producto" hidden>
+            <div id="imageEmpty" class="image-empty" hidden><strong>Sin fotografía</strong><span>Subí una para mostrarla en la tienda.</span></div>
+          </div>
+          <div class="preview-details">
+            <span class="eyebrow">VISTA PREVIA</span>
+            <span id="previewStatus" class="status-pill">Disponible</span>
+            <h3 id="previewName">Elegí un producto</h3>
+            <p id="previewMeta"></p>
+            <div class="preview-price" id="previewPrice">—</div>
+            <p id="previewVisibility" class="visibility"></p>
+            <div class="quick-actions">
+              <button type="button" id="quickSold">Marcar vendido</button>
+              <button type="button" id="quickReserved">Reservar</button>
+              <button type="button" id="quickAvailable">Disponible</button>
+            </div>
+            <p class="hint">Estos botones guardan el estado en GitHub y actualizan la tienda. Si hay cambios sin guardar, guardalos primero.</p>
+          </div>
+        </section>
+        <div class="editor-section"><div class="section-title"><div><h3>Información</h3><p>Editá los datos del producto.</p></div></div>
+          <div class="fields">
+            <label>ID del producto<input name="id" required pattern="VG-[0-9]{3,5}" placeholder="VG-031"></label>
+            <label>Nombre<input name="name" required maxlength="160"></label>
+            <label>Categoría<input name="category" required></label>
+            <label>Tipo<input name="type"></label>
+            <label>Marca<input name="brand"></label>
+            <label>Talle<input name="size"></label>
+            <label>Color<input name="color"></label>
+            <label>Condición<input name="condition"></label>
+            <label>Precio (ARS)<input name="price" type="number" min="0" step="1" placeholder="Consultar"></label>
+            <label>Disponibilidad<select name="availability"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></label>
+            <label>Orden<input name="order" type="number" min="1" step="1"></label>
+            <label class="publish"><input name="publish" type="checkbox" checked> Visible en la tienda</label>
+            <label class="wide">Descripción<textarea name="description" rows="3" placeholder="Detalle de la prenda, medidas…"></textarea></label>
+          </div>
+        </div>
+        <section class="editor-section photo">
+          <div class="section-title"><div><h3>Fotografía principal</h3><p>La imagen se verá en la vista previa de arriba.</p></div></div>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" aria-label="Elegir fotografía">
+          <div class="photo-controls"><button type="button" id="upload" class="btn secondary">Subir foto a la tienda</button><small>Guardá primero los productos nuevos. Las fotos tardan unos instantes en optimizarse y publicarse.</small></div>
+        </section>
+        <div class="danger-zone"><div><strong>Quitar del catálogo</strong><p>Elimina este producto del listado; conserva su foto en GitHub como respaldo.</p></div><button type="button" id="deleteOne" class="btn danger">Eliminar producto</button></div>
+      </form>
+    </section>
+  </main>
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>
