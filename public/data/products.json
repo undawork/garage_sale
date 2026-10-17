@@ -283,7 +283,7 @@
     "price": 60000,
     "currency": "ARS",
     "availability": "Disponible",
-    "publish": false,
+    "publish": true,
     "image": "/products/VG-033.webp",
     "description": "",
     "order": 33
