@@ -4,7 +4,7 @@
    y el borrado inteligente de fondo requieren un servicio de IA adicional. */
 const MAX_PHOTOS=8, MAX_SIZE=15*1024*1024, ROOT="/api/admin/";
 const drafts=[];
-let publishing=false, catalogLoaded=false;
+let publishing=false, catalogLoaded=false, publicationWatch=0;
 const $=selector=>document.querySelector(selector);
 const input=$("#batchInput"),zone=$("#dropZone"),cards=$("#drafts");
 const action=$("#publish"),progress=$("#progress"),result=$("#success");
@@ -34,6 +34,7 @@ function readableFilename(filename){
 }
 function addFiles(files){
   if(publishing)return;
+  publicationWatch++;
   result.hidden=true;
   const images=Array.from(files||[]);
   let accepted=0,skipped=0;
@@ -166,6 +167,78 @@ async function jpegData(file){
     return data;
   }finally{if(source&&typeof source.close==="function")source.close()}
 }
+
+/* El alta de fichas y la publicación de sus fotos son dos procesos distintos:
+   GitHub Actions genera los WebP y Cloudflare publica la nueva versión. */
+function showReceipt(batch){
+  result.replaceChildren();
+  const title=txt("strong","receipt-heading","✓ "+batch.length+" "+(batch.length===1?"producto guardado":"productos guardados")+" en GitHub");
+  const caption=txt("p","receipt-intro","Las fichas ya están guardadas. Ahora se están optimizando las fotos y actualizando la tienda. Podés salir de esta pantalla: el proceso continúa igualmente.");
+  const list=txt("div","receipt-list");
+  const statuses=new Map();
+  for(const product of batch){
+    const row=txt("div","receipt-row");
+    const details=txt("div","receipt-product");
+    details.append(txt("strong","",product.name),txt("small","",product.id));
+    const state=txt("span","receipt-state","Esperando foto…");
+    row.append(details,state);list.append(row);
+    statuses.set(product.id,state);
+  }
+  const actions=txt("div","receipt-actions");
+  const inventory=txt("a","receipt-link","Abrir inventario ↗");inventory.href="/admin/";
+  const shop=txt("a","receipt-link","Ver tienda ↗");shop.href="/";shop.target="_blank";shop.rel="noopener";
+  actions.append(inventory,shop);
+  result.append(title,caption,list,actions);
+  result.hidden=false;
+  watchPublication(batch,statuses,caption);
+}
+async function watchPublication(batch,statuses,caption){
+  const watch=++publicationWatch;
+  let tries=0;
+  const check=async()=>{
+    if(watch!==publicationWatch)return;
+    tries++;
+    let allReady=true;
+    try{
+      const response=await fetch("/data/products.json?nocache="+Date.now(),{cache:"no-store"});
+      if(!response.ok)throw Error("Catálogo aún no actualizado");
+      const catalog=await response.json();
+      if(!Array.isArray(catalog))throw Error("Catálogo aún no disponible");
+      const published=new Set(catalog.map(item=>item.id));
+      for(const product of batch){
+        const label=statuses.get(product.id);
+        if(!published.has(product.id)){
+          label.textContent="Guardado · preparando publicación";allReady=false;continue;
+        }
+        try{
+          const file=await fetch("/products/"+encodeURIComponent(product.id)+".webp?nocache="+Date.now(),{method:"HEAD",cache:"no-store"});
+          if(file.ok&&/^image\//i.test(file.headers.get("content-type")||"")){
+            label.textContent=product.publish?"Foto visible ✓":"Foto lista · producto oculto";
+            label.classList.add("ready");
+          }else{
+            label.textContent="Ficha publicada · procesando foto…";allReady=false;
+          }
+        }catch{
+          label.textContent="Ficha publicada · esperando foto…";allReady=false;
+        }
+      }
+      if(allReady){
+        caption.textContent="¡Todo listo! Las fotografías ya están disponibles. Podés abrir la tienda o volver al inventario.";
+        status("¡Listo! Las fotos ya están publicadas.");
+        return;
+      }
+    }catch{
+      allReady=false;
+    }
+    if(watch!==publicationWatch)return;
+    if(tries<45)setTimeout(check,8000);
+    else{
+      caption.textContent="Los productos se guardaron correctamente, pero la verificación de imágenes tardó más de lo habitual. La publicación sigue en GitHub y Cloudflare: revisá el inventario dentro de unos minutos o actualizá la tienda.";
+      status("Productos guardados. La comprobación de las fotos sigue pendiente.");
+    }
+  };
+  check();
+}
 async function load(){
   try{
     const data=await request("products");
@@ -218,15 +291,15 @@ async function publish(){
       description:d.description.trim(),order:orderStart+i+1
     }));
     await request("products",{method:"PUT",body:JSON.stringify({sha:latest.sha,products:[...latest.products,...batch]})});
-    const count=drafts.length;
+    const savedBatch=batch.map(p=>({id:p.id,name:p.name,publish:p.publish}));
     drafts.forEach(d=>URL.revokeObjectURL(d.url));
     drafts.length=0;cards.replaceChildren();
-    const empty=txt("div","empty-drafts");empty.append(txt("span","","✓"),txt("strong","","Lote publicado"),txt("p","","Podés cargar otra tanda cuando quieras."));
+    const empty=txt("div","empty-drafts");
+    empty.append(txt("span","","✓"),txt("strong","","Productos guardados"),txt("p","","Podés cargar otra tanda cuando quieras."));
     cards.append(empty);setReady();
-    result.textContent=count+" "+(count===1?"producto guardado":"productos guardados")+" en GitHub. La tienda se actualizará después del procesamiento de las fotografías y el despliegue de Cloudflare. Podés revisar el inventario para verlos.";
-    result.hidden=false;
-    status("¡Listo! Productos guardados y fotos enviadas.");
-  }catch(e){status(e.message,true)}
+    showReceipt(savedBatch);
+    status("Fichas guardadas. Las fotografías siguen procesándose hasta que estén visibles en la tienda.");
+    }catch(e){status(e.message,true)}
   finally{publishing=false;setReady()}
 }
 input.addEventListener("change",e=>addFiles(e.target.files));
