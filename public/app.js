@@ -11,8 +11,7 @@ const elements = {
   condition: $("#conditionFilter"), color: $("#colorFilter"),
   showSold: $("#showSold"), activeFilters: $("#activeFilters"),
   count: $("#resultCount"), catalogTitle: $("#catalogTitle"),
-  heroCount: $("#heroCount"),
-  dialog: $("#productDialog")
+  heroCount: $("#heroCount")
 };
 const state = {
   products: [], category: "Todo", type: "Todo", brand: "Todo",
@@ -167,11 +166,9 @@ function createProductCard(product) {
   const details=createElement("span","product-view","↗");
   details.setAttribute("aria-hidden","true");
   bottom.append(details);body.append(bottom);card.append(photo,body);
-  // Un único botón nativo con área clickeable completa: foto, título, precio
-  // y espacios vacíos; soporta mouse, táctil, Enter y Espacio.
-  const open=createElement("button","product-open");
-  open.type="button";
-  open.dataset.product=product.id;
+  // Un enlace real permite abrir el producto, compartirlo y volver al catálogo.
+  const open=createElement("a","product-open");
+  open.href="/producto/?id="+encodeURIComponent(product.id);
   open.setAttribute("aria-label","Ver detalles de "+product.name);
   card.append(open);
   return card;
@@ -219,40 +216,6 @@ function setHero() {
   const count=state.products.filter(p=>isPublic(p)&&!isSold(p)).length;
   elements.heroCount.textContent=count+" "+(count===1?"artículo para descubrir":"artículos para descubrir")+" · Córdoba";
 }
-function openProduct(id) {
-  const p=state.products.find(item=>item.id===id&&isPublic(item));
-  if(!p) return;
-  const img=$("#modalImage"),fallback=$("#modalFallback");
-  img.hidden=false;fallback.hidden=true;
-  const path=imagePath(p);
-  if(path) img.src=path; else {img.hidden=true;fallback.hidden=false;}
-  img.alt="Foto grande de "+p.name;
-  img.onload=()=>{img.hidden=false;fallback.hidden=true;};
-  img.onerror=()=>{img.hidden=true;fallback.hidden=false;};
-  $("#modalCategory").textContent=[p.category,p.type].filter(Boolean).join(" / ");
-  $("#modalName").textContent=p.name;$("#modalCode").textContent=p.id;
-  $("#modalPrice").textContent=priceLabel(p);
-  $("#modalDescription").textContent=p.description||"Consultanos para más detalles de este producto.";
-  const specs=[p.brand&&"Marca: "+p.brand,p.size&&"Talle: "+p.size,p.color&&"Color: "+p.color,p.condition&&"Estado: "+p.condition].filter(Boolean);
-  $("#modalSpecs").replaceChildren(...specs.map(v=>createElement("span","",v)));
-  const badge=$("#modalBadge");
-  badge.hidden=!isSold(p)&&p.availability!=="Reservado";
-  badge.textContent=isSold(p)?"Vendido":p.availability==="Reservado"?"Reservado":"";
-  const action=$("#modalWhatsApp"),href=whatsAppLink(p);
-  if(isSold(p)) {
-    action.removeAttribute("href");action.classList.add("disabled");action.setAttribute("aria-disabled","true");
-    action.textContent="Producto vendido";
-  }else {
-    action.classList.remove("disabled");action.removeAttribute("aria-disabled");
-    if(href) action.href=href;else action.removeAttribute("href");
-    action.textContent=p.availability==="Reservado"?"Consultar disponibilidad ↗":"Consultar por WhatsApp ↗";
-  }
-  // Al abrir otra ficha, la lectura comienza arriba. El cierre y el CTA
-  // permanecen visibles mientras se desplazan los detalles.
-  if(!elements.dialog.open && typeof elements.dialog.showModal==="function")elements.dialog.showModal();
-  $("#modalScroll").scrollTop=0;
-  $("#modalClose").focus({preventScroll:true});
-}
 async function loadCatalog() {
   elements.loadError.hidden=true;
   try {
@@ -274,7 +237,6 @@ async function loadCatalog() {
 }
 elements.categoryCards.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b)setCategory(b.dataset.category)});
 elements.categoryTabs.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b)setCategory(b.dataset.category)});
-elements.grid.addEventListener("click",e=>{const b=e.target.closest("[data-product]");if(b)openProduct(b.dataset.product)});
 elements.search.addEventListener("input",e=>{state.search=e.target.value;render()});
 elements.sort.addEventListener("change",e=>{state.sort=e.target.value;render()});
 for(const [key] of filterFields)elements[key].addEventListener("change",e=>{state[key]=e.target.value;render()});
@@ -300,8 +262,6 @@ elements.activeFilters.addEventListener("click",e=>{
   if(key==="category")filterOptions();
   render();
 });
-$("#modalClose").addEventListener("click",()=>elements.dialog.close());
-elements.dialog.addEventListener("click",e=>{if(e.target===elements.dialog)elements.dialog.close()});
 configureContactLinks();
 loadCatalog();
 
