@@ -27,6 +27,8 @@ jobs:
         run: node scripts/test-image-rotation.mjs
       - name: Test storefront categories
         run: node scripts/test-categories.mjs
+      - name: Test mobile product dialog
+        run: node scripts/test-mobile-product-dialog.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Validate catalog

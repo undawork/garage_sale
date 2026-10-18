@@ -247,7 +247,11 @@ function openProduct(id) {
     if(href) action.href=href;else action.removeAttribute("href");
     action.textContent=p.availability==="Reservado"?"Consultar disponibilidad ↗":"Consultar por WhatsApp ↗";
   }
-  if(typeof elements.dialog.showModal==="function")elements.dialog.showModal();
+  // Al abrir otra ficha, la lectura comienza arriba. El cierre y el CTA
+  // permanecen visibles mientras se desplazan los detalles.
+  if(!elements.dialog.open && typeof elements.dialog.showModal==="function")elements.dialog.showModal();
+  $("#modalScroll").scrollTop=0;
+  $("#modalClose").focus({preventScroll:true});
 }
 async function loadCatalog() {
   elements.loadError.hidden=true;
