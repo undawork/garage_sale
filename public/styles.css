@@ -193,6 +193,8 @@ h1,h2,h3,p{overflow-wrap:break-word}
 .modal-image img{display:block;max-height:650px;width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
 .modal-fallback{color:#858581;display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;text-align:center;font-size:12px}
 .modal-fallback .fallback-icon{font-size:35px}
+/* Las reglas de autor deben respetar el estado hidden de imagen/badge. */
+.modal-image img[hidden],.modal-fallback[hidden],.modal-badge[hidden]{display:none!important}
 .modal-badge{position:absolute;top:16px;left:16px;font-size:11px;font-weight:820;border-radius:99px;background:#242424;color:white;padding:8px 13px}
 .modal-info{min-width:0;padding:31px 30px;display:flex;align-items:flex-start;flex-direction:column}
 .modal-info .eyebrow,.modal-code,.modal-description{overflow-wrap:anywhere}
