@@ -5,6 +5,10 @@ const money=v=>v===null||v===undefined||v===""?"Consultar":new Intl.NumberFormat
 const photoURL=p=>p.image||("/products/"+p.id+".webp");
 const form=$("#form"),dialog=$("#editDialog"),addDialog=$("#addDialog"),frame=$("#addFrame");
 const keys=["id","name","category","type","brand","size","color","condition","price","availability","order","description"];
+// Las mismas categorías que se muestran en las tarjetas de la tienda pública.
+const categoryNames=window.GARAGE_CATEGORIES || ["Ropa","Libros","Accesorios","Tech & Home"];
+const categorySelect=form.elements.namedItem("category");
+categorySelect.append(...categoryNames.map(name=>new Option(name,name)));
 let products=[],sha="",readOnly=true,busy=false,dirty=false,formDirty=false,photoDirty=false,currentId=null,searchFilter="Todos",categoryFilter="Todas",selectionMode=false,localURL=null,localSource=null,photoRotation=0;
 const selected=new Set();
 function notify(message,error=false){
@@ -132,6 +136,11 @@ function openEditor(id){
   if(dialog.open){if(!requestCloseEditor())return}
   const p=products.find(v=>v.id===id);if(!p)return;
   currentId=id;dirty=false;formDirty=false;photoDirty=false;revoke();
+  // Un producto heredado con otra categoría conserva su valor al editarlo;
+  // nunca se reemplaza silenciosamente por una de las opciones nuevas.
+  if(p.category && ![...categorySelect.options].some(o=>o.value===p.category)){
+    categorySelect.append(new Option(p.category+" (anterior)",p.category));
+  }
   $("#uploadPhoto").hidden=true;$("#photoUploadHelp").hidden=true;$("#photoUploadHelp").textContent="";
   for(const key of keys){
     const input=form.elements.namedItem(key);if(input)input.value=p[key]??"";

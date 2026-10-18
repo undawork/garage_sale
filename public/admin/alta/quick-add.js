@@ -138,7 +138,7 @@ function renderCard(draft){
   const grid=txt("div","draft-fields");
   grid.append(
     field(draft,"Nombre *","name",{wide:true,placeholder:"Ej.: Sweater gris de lana"}),
-    field(draft,"Categoría *","category",{options:["Ropa","Libros","Accesorios","Otros"]}),
+    field(draft,"Categoría *","category",{options:window.GARAGE_CATEGORIES || ["Ropa","Libros","Accesorios","Tech & Home"]}),
     field(draft,"Precio (ARS)","price",{number:true,placeholder:"Consultar"}),
     field(draft,"Tipo","type",{placeholder:"Ej.: Sweater"}),
     field(draft,"Marca","brand",{placeholder:"Opcional"}),

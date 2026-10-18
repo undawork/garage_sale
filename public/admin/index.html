@@ -97,7 +97,7 @@
           <strong id="previewPrice" class="editor-price">—</strong>
           <div class="fields">
             <label class="wide">Nombre<input name="name" required maxlength="160"></label>
-            <label>Categoría<input name="category" required></label>
+            <label>Categoría<select name="category" required><option value="">Elegí una categoría</option></select></label>
             <label>Tipo<input name="type"></label>
             <label>Precio (ARS)<input name="price" type="number" min="0" step="1" placeholder="Consultar"></label>
             <label>Marca<input name="brand"></label>
@@ -119,6 +119,7 @@
     <div class="add-dialog-top"><div><span class="eyebrow">ALTA DE PRODUCTOS</span><h2>Agregar a la tienda</h2><p>Una foto o varias, en el mismo lugar. Las nuevas fichas se guardan como borradores.</p></div><button type="button" id="closeAdd" class="close-button" aria-label="Cerrar carga de productos">×</button></div>
     <iframe id="addFrame" title="Carga de uno o varios productos" data-src="/admin/alta/?integrado=1" loading="lazy"></iframe>
   </dialog>
+  <script src="/categories.js" defer></script>
   <script src="/admin/image-tools.js" defer></script>
   <script src="/admin/admin.js" defer></script>
 </body>

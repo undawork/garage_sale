@@ -91,15 +91,15 @@ function createElement(tag,className,text) {
 const editorialImages = {
   "Ropa": "https://images.unsplash.com/photo-1601926299866-6a5c9bfa6be0?auto=format&fit=crop&w=900&q=76",
   "Libros": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=76",
-  "Accesorios": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=76"
+  "Accesorios": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=76",
+  // Imagen editorial de un espacio de trabajo; no es la foto de un artículo a la venta.
+  "Tech & Home": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=78"
 };
 function renderCategories() {
   const groups = categoryCounts();
-  const priority = ["Ropa","Libros","Accesorios"];
-  const entries = [...groups.entries()].sort(([a],[b]) => {
-    const ai=priority.indexOf(a),bi=priority.indexOf(b);
-    return (ai===-1?100:ai)-(bi===-1?100:bi) || a.localeCompare(b,"es");
-  });
+  const names = window.GARAGE_CATEGORIES || ["Ropa","Libros","Accesorios","Tech & Home"];
+  // Mostrar siempre las cuatro categorías, aunque alguna todavía no tenga artículos.
+  const entries = names.map(name => [name, groups.get(name) || []]);
   const all = createElement("button","category-tab"+(state.category==="Todo"?" active":""),"Todos");
   all.type="button";all.dataset.category="Todo";all.setAttribute("aria-pressed",String(state.category==="Todo"));
   const tabs=[all],cards=[];

@@ -25,6 +25,8 @@ jobs:
           node --check public/app.js
       - name: Test photo rotation
         run: node scripts/test-image-rotation.mjs
+      - name: Test storefront categories
+        run: node scripts/test-categories.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Validate catalog
