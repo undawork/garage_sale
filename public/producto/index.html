@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f5">
+  <meta name="description" content="Conocé el estado, la fotografía y los detalles de este artículo de Venta de Garage. Consultanos directamente por WhatsApp.">
+  <title>Detalles del producto · Venta de Garage</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/producto/producto.css">
+</head>
+<body class="detail-page">
+  <div class="announcement"><span>OBJETOS CON HISTORIA · CÓRDOBA, ARGENTINA</span><a href="/#catalogo">EXPLORÁ EL CATÁLOGO ↗</a></div>
+  <header class="site-header">
+    <div class="wrap detail-nav">
+      <a class="wordmark" href="/" aria-label="Venta de Garage, inicio">Venta de Garage<span>.</span></a>
+      <a class="detail-nav-return" href="/#catalogo">← Volver a productos</a>
+    </div>
+  </header>
+  <main id="main" class="detail-main wrap">
+    <nav class="breadcrumbs" aria-label="Ruta de navegación">
+      <a href="/">Inicio</a><span aria-hidden="true">/</span><a href="/#catalogo">Productos</a><span aria-hidden="true">/</span><span id="breadcrumbName">Detalle</span>
+    </nav>
+
+    <div id="loading" class="detail-loading" role="status">Cargando artículo…</div>
+    <div id="error" class="detail-error" hidden>
+      <span aria-hidden="true">◇</span>
+      <h1>Este artículo no está disponible.</h1>
+      <p>Quizás se retiró del catálogo. Podés seguir explorando otros productos.</p>
+      <a class="button button-solid" href="/#catalogo">Volver al catálogo ↗</a>
+    </div>
+
+    <article id="product" class="detail-layout" hidden aria-labelledby="detailName">
+      <div class="detail-media">
+        <div class="detail-image-stage">
+          <img id="detailImage" alt="" decoding="async" fetchpriority="high" hidden>
+          <div id="detailImageMissing" class="detail-image-missing" hidden><span aria-hidden="true">◇</span><strong>Fotografía pendiente</strong></div>
+        </div>
+        <p class="detail-image-caption">Fotografía real del artículo · Imagen completa, sin recortes</p>
+      </div>
+      <div class="detail-copy">
+        <span id="detailCategory" class="eyebrow"></span>
+        <h1 id="detailName"></h1>
+        <div class="detail-head-meta"><span id="detailId"></span><span id="detailStatus" class="detail-status"></span></div>
+        <strong id="detailPrice" class="detail-price"></strong>
+        <div class="detail-divider"></div>
+        <div class="detail-section">
+          <h2>Sobre este artículo</h2>
+          <p id="detailDescription" class="detail-description"></p>
+        </div>
+        <dl id="detailSpecs" class="detail-specs"></dl>
+        <div class="detail-contact">
+          <a id="detailWhatsApp" class="button button-solid detail-action" href="#" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp ↗</a>
+          <p class="detail-contact-note">Consultá disponibilidad y coordiná directamente, sin compras en línea.</p>
+        </div>
+      </div>
+    </article>
+    <section id="related" class="detail-related" aria-labelledby="relatedHeading" hidden>
+      <div class="detail-related-top"><h2 id="relatedHeading">También te puede interesar</h2><a href="/#catalogo">Ver todos ↗</a></div>
+      <div id="relatedGrid" class="detail-related-grid"></div>
+    </section>
+  </main>
+  <div id="mobileAction" class="mobile-product-action" hidden>
+    <div class="mobile-action-description"><span id="mobilePrice"></span><small id="mobileStatus"></small></div>
+    <a id="mobileWhatsApp" class="button button-solid" href="#" target="_blank" rel="noopener noreferrer">Consultar ↗</a>
+  </div>
+  <footer class="detail-footer">
+    <div class="wrap"><a class="wordmark" href="/">Venta de Garage<span>.</span></a><span>Buenas cosas siguen circulando.</span></div>
+  </footer>
+  <script src="/config.js"></script>
+  <script src="/producto/producto.js" defer></script>
+</body>
+</html>
