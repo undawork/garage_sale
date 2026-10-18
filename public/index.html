@@ -106,9 +106,26 @@
   <a class="floating-contact" id="floatingContact" href="#como-funciona" aria-label="Consultar por WhatsApp" target="_blank" rel="noopener"><span aria-hidden="true">◉</span> WhatsApp</a>
 
   <dialog id="productDialog" class="product-dialog" aria-labelledby="modalName">
-    <button class="modal-close" type="button" id="modalClose" aria-label="Cerrar detalle">×</button>
-    <div class="modal-layout"><div class="modal-image"><img id="modalImage" alt=""><div id="modalFallback" class="modal-fallback" hidden><span class="fallback-icon" aria-hidden="true">◇</span><span>Fotografía pendiente</span></div><span id="modalBadge" class="modal-badge" hidden></span></div>
-      <div class="modal-info"><span id="modalCategory" class="eyebrow">DETALLES</span><h2 id="modalName"></h2><span id="modalCode" class="modal-code"></span><strong class="modal-price" id="modalPrice"></strong><p id="modalDescription" class="modal-description"></p><div class="modal-specs" id="modalSpecs"></div><a id="modalWhatsApp" class="button button-solid modal-cta" href="#" target="_blank" rel="noopener">Consultar por WhatsApp ↗</a><p class="modal-note">Consultanos sin compromiso.</p></div>
+    <div class="modal-topbar">
+      <span class="modal-topbar-label">DETALLES DEL PRODUCTO</span>
+      <button class="modal-close" type="button" id="modalClose" aria-label="Cerrar detalles del producto">×</button>
+    </div>
+    <div id="modalScroll" class="modal-scroll">
+      <div class="modal-layout">
+        <div class="modal-image"><img id="modalImage" alt=""><div id="modalFallback" class="modal-fallback" hidden><span class="fallback-icon" aria-hidden="true">◇</span><span>Fotografía pendiente</span></div><span id="modalBadge" class="modal-badge" hidden></span></div>
+        <div class="modal-info">
+          <span id="modalCategory" class="eyebrow">DETALLES</span>
+          <h2 id="modalName"></h2>
+          <span id="modalCode" class="modal-code"></span>
+          <strong class="modal-price" id="modalPrice"></strong>
+          <p id="modalDescription" class="modal-description"></p>
+          <div class="modal-specs" id="modalSpecs"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <a id="modalWhatsApp" class="button button-solid modal-cta" href="#" target="_blank" rel="noopener">Consultar por WhatsApp ↗</a>
+      <p class="modal-note">Consultanos sin compromiso.</p>
     </div>
   </dialog>
   <script src="/config.js"></script>
