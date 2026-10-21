@@ -26,6 +26,18 @@ assert.ok(html.includes('href="/producto/producto.css"'),"Faltan estilos del pro
 assert.ok(!html.includes("<dialog"),"La ficha no debe tener lightbox");
 assert.ok(css.includes("aspect-ratio:1/1"),"El área de foto debe ser cuadrada");
 assert.ok(css.includes("object-fit:contain"),"Las fotos no se deben recortar");
+assert.ok(css.includes("position:relative;width:100%;aspect-ratio:1/1"),"El recuadro debe definir su espacio");
+assert.ok(css.includes(".detail-image-stage img{\n  position:absolute;inset:0"),"La imagen no debe aumentar el alto de la grilla y quedar recortada");
+assert.ok(css.includes(".detail-image-stage.is-portrait{aspect-ratio:4/5}"),"Los artículos largos necesitan marco vertical");
+assert.ok(js.includes("img.naturalWidth/img.naturalHeight"),"La orientación debe provenir de la foto original");
+assert.ok(js.includes('stage.classList.toggle("is-portrait",ratio<0.85)'),"Las fotos altas deben activar el marco retrato");
+assert.ok(root.includes('href="/admin/"'),"Acceso privado visible desde la tienda pública");
+assert.ok(html.includes('href="/admin/"'),"Acceso privado visible desde la ficha de producto");
+assert.ok(root.includes('aria-label="Ingresar al administrador de la tienda"'),"El ícono debe ser accesible");
+assert.ok(html.includes('aria-label="Ingresar al administrador de la tienda"'),"El ícono del producto debe ser accesible");
+const homeCSS=fs.readFileSync("public/styles.css","utf8");
+assert.ok(homeCSS.includes(".admin-entry>span{display:none}"),"El acceso debe ser compacto en móvil");
+
 assert.ok(css.includes("grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)"),"Imagen y texto separados en escritorio");
 assert.ok(css.includes("flex-direction:column"),"La ficha móvil debe apilar foto y texto");
 assert.ok(css.includes("position:fixed;left:0;right:0;bottom:0"),"El botón móvil debe permanecer visible");

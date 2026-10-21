@@ -33,11 +33,20 @@ function showError(){
   document.title="Artículo no disponible · Venta de Garage";
 }
 function fillImage(img, fallback, p, fresh=false){
+  const stage=img.closest(".detail-image-stage");
+  stage?.classList.remove("is-portrait","is-landscape");
   img.hidden=true;fallback.hidden=false;img.removeAttribute("src");
   const src=imagePath(p);
   if(!src)return;
-  img.onload=()=>{img.hidden=false;fallback.hidden=true};
-  img.onerror=()=>{img.hidden=true;fallback.hidden=false};
+  img.onload=()=>{
+    if(stage && img.naturalWidth && img.naturalHeight){
+      const ratio=img.naturalWidth/img.naturalHeight;
+      stage.classList.toggle("is-portrait",ratio<0.85);
+      stage.classList.toggle("is-landscape",ratio>1.2);
+    }
+    img.hidden=false;fallback.hidden=true;
+  };
+  img.onerror=()=>{img.hidden=true;fallback.hidden=false;stage?.classList.remove("is-portrait","is-landscape")};
   img.alt="Fotografía completa de "+p.name;
   img.src=src+(fresh?"?v="+Date.now():"");
 }

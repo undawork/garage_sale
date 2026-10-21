@@ -30,6 +30,11 @@ h1,h2,h3,p{overflow-wrap:break-word}
 .nav-contact{border:1px solid var(--ink);background:var(--ink);color:#fff;text-decoration:none;border-radius:999px;font-size:12px;font-weight:800;padding:12px 19px;white-space:nowrap}
 .nav-contact:hover{background:#353535}
 .nav-contact span{margin-left:10px}
+/* Acceso administrativo discreto. Cloudflare Access exige login al abrir /admin/. */
+.admin-entry{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:7px 11px;border:1px solid #deded9;border-radius:5px;background:transparent;text-decoration:none;white-space:nowrap;color:#55534f;font-size:11px;font-weight:750;transition:background .15s,color .15s}
+.admin-entry svg{width:17px;height:17px;flex:none}
+.admin-entry:hover{background:#eae9e5;color:#1c1c1c}
+.admin-entry:focus-visible{outline:3px solid #ad9680;outline-offset:2px}
 .menu-toggle,.mobile-nav{display:none}
 .hero{background:#f4f4f2}
 .hero-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);align-items:center;gap:32px;min-height:430px;padding-block:34px}
@@ -195,6 +200,9 @@ h1,h2,h3,p{overflow-wrap:break-word}
  .nav{height:64px;gap:6px}
  .wordmark{font-size:23px}
  .nav-actions{gap:5px}.nav-contact{display:none}.nav-search{width:34px}
+ .admin-entry{width:35px;height:38px;min-height:38px;padding:0}
+ .admin-entry svg{width:18px;height:18px}
+ .admin-entry>span{display:none}
  .hero-inner{display:flex;flex-direction:column;min-height:0;gap:0;padding-block:0}
  .hero-copy{padding:38px 0 20px;order:1}
  .hero h1{font-size:clamp(3.6rem,12vw,5.6rem);margin:20px 0 17px;max-width:550px;line-height:.98}
